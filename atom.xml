@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[AFNBook experiment]]></title>
+  <link href="http://AFNBook.github.io/atom.xml" rel="self"/>
+  <link href="http://AFNBook.github.io/"/>
+  <updated>2013-09-11T08:58:00+02:00</updated>
+  <id>http://AFNBook.github.io/</id>
+  <author>
+    <name><![CDATA[Jorge Maroto]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+</feed>

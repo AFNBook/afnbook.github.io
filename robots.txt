@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: 
+
+Sitemap: http://AFNBook.github.io/sitemap.xml 
