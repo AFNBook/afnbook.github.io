@@ -1,0 +1,883 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>4. API’s world - AFNBook experiment</title>
+  <meta name="author" content="Jorge Maroto">
+
+  
+  <meta name="description" content="4. API’s World In chapter 3 we learned how to read a structured file from Internet and use information contents on it to fill our application. Ok, &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://AFNBook.github.io/4-apis.html">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="AFNBook experiment" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=Arvo:400,400italic,700,700italic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=Playball" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body>
+  <header role="banner"><hgroup>
+  <h1><a href="/">AFNBook experiment</a></h1>
+  
+    <h2>A blog that is a book.</h2>
+  
+</hgroup>
+
+</header>
+  <div id="navigation">
+    <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:AFNBook.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/0-disclaimer.html">Book</a></li>
+	<li class="post"><a href="http://d.pr/f/qvzU">Download Kindle version (.mobi)</a></li>
+	<li class="post"><a href="http://d.pr/f/DMSx">Download e-reader version (.epub)</a></li>
+</ul>
+</nav>
+  </div>
+  <div id="body"  >
+    <div id="main">
+      <div id="content">
+        <div>
+<article role="article">
+  
+  <header>
+    <h1 class="entry-title">4. API’s World</h1>
+    
+  </header>
+  
+  <p>In chapter 3 we learned how to read a structured file from Internet and use information contents on it to fill our application. Ok, that’s right, but you need to create these files and put in yourself server. What would you think if I tell you that you can catch a lot information from your favourite social network without too effort? On this chapter we’ll learn how to develop an application that is filled with data from services from Internet alien to us.</p>
+
+<p>On the first part of the chapter you’ll consume <em>free information</em>, without need of introduce any user or password, on this case from GitHub.</p>
+
+<p>Second part of the chapter is about OAuth, an open login protocol that allows you to get information related with your specific user; in this case we’ll use
+Instagram API to load friend list and their photos.</p>
+
+<p>The main point that I would like to emphasize along this chapter is that all these information is out there, and you can get and represent it, as you like to make your application over these APIs.</p>
+
+<h2>4.1 Using free APIs</h2>
+
+<p>Free APIs are a subset that is distinguished by doesn’t need to have a user and password to get their information. For example, to do a search on Google, you can be logged with your Gmail account, but you also can do it as ‘anonymous user’ and Google retrieve you results to your search. The same thing happens with APIs, some requests can be done freely.</p>
+
+<h3>4.1.1 But… What the hell is an API?</h3>
+
+<p>Maybe I should have started here. API is acronym of <em>Application Programming Interface</em> and in summary is a “language” provided by a specific service to communicate with, and allows for example to do requests about users, likes or whatever which has been implemented by the API service.</p>
+
+<p>A lot of APIs are available on Internet to get their information without to be login on these platforms. A good illustration is Twitter API, where it’s possible to make a query and it retrieves a list of twits that include a specific word, for example to follow an event.</p>
+
+<p>Also it’s possible to do things related with your personal account, as write a twit, but for this you need to be logged, and we’ll explain it in the last section of this chapter.</p>
+
+<h3>4.1.2 First steps with GitHub API</h3>
+
+<p>Usually APIs have a good documentation that explain how it works, so it’s very recommended read it before start to write the first line of code and understand what things you can to do with it.</p>
+
+<p>In our case, we’ll use GitHub API, so on first place we need to go to <a href="http://developer.github.com/">http://developer.github.com/</a> where we can found several pages about all the things that you are allowed to do.</p>
+
+<p>Our application will show user’s repositories and their friends, so we need to pay special attention to user’s section (<a href="http://developer.github.com/v3/users/">http://developer.github.com/v3/users/</a>), because we’ll use these queries:</p>
+
+<ul>
+<li><code>users/%@/repos</code></li>
+<li><code>users/%@/followers</code></li>
+<li><code>users/%@/following</code></li>
+</ul>
+
+
+<p>You can test what returns each url for understand better this chapter, for example, you could want to see my repositories, so you could open in your favorite browser this URL:
+<a href="https://api.github.com/users/patoroco/repos">https://api.github.com/users/patoroco/repos</a>.</p>
+
+<p>As you saw, the answer is returned in JSON format, so it’s easy of read each part on it, and understand what field is from the key name.</p>
+
+<p>Once we have understand how API’s runs, we going to create the skeleton of the app where show interesting information.</p>
+
+<h3>4.1.3 Skeleton of GitApp</h3>
+
+<p>In this case we going to create a multi viewcontroller application, so I prefer to use storyboard for it. This is the final aspect that you would accomplish if you follow this chapter.</p>
+
+<p><img src="assets/8591_04_01.png" alt="Storyboard with all view controllers included in GitApp" /></p>
+
+<p>As you can see, application is built with a navigation controller, where root view controller shows a text field to introduce a GitHub nickname and pressing load, it will do a request to GitHub API returning all specific values to fill this screen.</p>
+
+<p>After that, user could select see user repositories, people who is followed by this user or people that is following the user.</p>
+
+<p>Finally, we’ll use GitHub URL included on response to show webpage of each to the user.</p>
+
+<p>As we did before, we need to include AFNetworking in our project, so one more time I chosen the easiest method: CocoaPods. If you have some dudes, go back and reread this section.</p>
+
+<h3>4.1.4 GitApp Client</h3>
+
+<p>AFNetworking includes several classes that help with ordinary tasks. One of these is <code>AFHTTPClient</code> that include common patterns of communicating with an API, for example making requests using relative paths or setting HTTP headers which will be sent for each request.</p>
+
+<p>Typically, you will not work with AFHTTPClient directly, but you’ll do a subclass of it, where you define a singleton with a base URL and all request will be done to this base path followed of the relative URL.</p>
+
+<p>On XCode create a new class named GitHubAPIClient that has AFHTTPClient as superclass, and define a public class method as follows.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">@interface</span> <span class="nc">JMGitHubAPIClient</span> : <span class="nc">AFHTTPClient</span>
+</span><span class='line'><span class="k">+</span> <span class="p">(</span><span class="n">JMGitHubAPIClient</span> <span class="o">*</span><span class="p">)</span><span class="nf">sharedClient</span><span class="p">;</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>On implementation section is useful to write a constructor from a URL as follows.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nf">initWithBaseURL:</span><span class="p">(</span><span class="n">NSURL</span> <span class="o">*</span><span class="p">)</span><span class="nv">url</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nl">initWithBaseURL:</span><span class="n">url</span><span class="p">];</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">self</span><span class="p">)</span> <span class="k">return</span> <span class="nb">nil</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">[</span><span class="n">self</span> <span class="nl">registerHTTPOperationClass:</span><span class="p">[</span><span class="n">AFJSONRequestOperation</span> <span class="n">class</span><span class="p">]];</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">self</span> <span class="nl">setDefaultHeader:</span><span class="s">@&quot;Accept&quot;</span> <span class="nl">value:</span><span class="s">@&quot;application/json&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>As you can see, here you define what is default header that you want to receive in all responses. This is recommendable because some APIs allow you to receive responses on different formats, for example JSON or XML, so it’s important that you choose one of these.</p>
+
+<p>At last, you only need to do a singleton as is usual, and calls to the constructor with the base URL that will be used on all client (this property is read-only, so if you need to do requests to different APIs, you need to write one APIClient by each service) as the code below.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">kAFGitHubAPIBaseURLString</span> <span class="o">=</span> <span class="s">@&quot;https://api.github.com/&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">+</span> <span class="p">(</span><span class="n">JMGitHubAPIClient</span> <span class="o">*</span><span class="p">)</span><span class="nf">sharedClient</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">static</span> <span class="n">JMGitHubAPIClient</span> <span class="o">*</span><span class="n">_sharedClient</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">static</span> <span class="n">dispatch_once_t</span> <span class="n">onceToken</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">dispatch_once</span><span class="p">(</span><span class="o">&amp;</span><span class="n">onceToken</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+</span><span class='line'>        <span class="n">_sharedClient</span> <span class="o">=</span> <span class="p">[[</span><span class="n">JMGitHubAPIClient</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithBaseURL:</span><span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="n">kAFGitHubAPIBaseURLString</span><span class="p">]];</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">_sharedClient</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>4.1.5 User info</h3>
+
+<p>Main screen shows some information about user whit the nickname filled on text field, as user avatar, real name or number of friends of this user as you can see on image below.</p>
+
+<p><img src="assets/8591_04_02.png" alt="Main screen with a user information loaded" /></p>
+
+<p>First of all, we need to define some outlets to update these interface elements, as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">@interface</span> <span class="nc">JMViewController</span> <span class="p">()</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UITextField</span> <span class="o">*</span><span class="n">nickname</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UIImageView</span> <span class="o">*</span><span class="n">avatar</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UILabel</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UILabel</span> <span class="o">*</span><span class="n">company</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UILabel</span> <span class="o">*</span><span class="n">location</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UIButton</span> <span class="o">*</span><span class="n">reposButton</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UIButton</span> <span class="o">*</span><span class="n">followersButton</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UIButton</span> <span class="o">*</span><span class="n">followingButton</span><span class="p">;</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>After that we need to include an IBAction which will be called when load button will be pressed and will start the API request.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">IBAction</span><span class="p">)</span><span class="nf">loadUser</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">NSString</span> <span class="o">*</span><span class="n">urlWithUser</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nl">stringWithFormat:</span><span class="s">@&quot;users/%@&quot;</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">nickname</span><span class="p">.</span><span class="n">text</span><span class="p">];</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="p">[[</span><span class="n">JMGitHubAPIClient</span> <span class="n">sharedClient</span><span class="p">]</span>
+</span><span class='line'>      <span class="nl">getPath:</span><span class="n">urlWithUser</span>
+</span><span class='line'>      <span class="nl">parameters:</span><span class="nb">nil</span>
+</span><span class='line'>      <span class="nl">success:</span><span class="o">^</span><span class="p">(</span><span class="n">AFHTTPRequestOperation</span> <span class="o">*</span><span class="n">operation</span><span class="p">,</span> <span class="kt">id</span> <span class="n">responseObject</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="p">[</span><span class="n">self</span> <span class="nl">loadInfo:</span><span class="n">responseObject</span><span class="p">];</span>
+</span><span class='line'>      <span class="p">}</span> <span class="nl">failure:</span><span class="o">^</span><span class="p">(</span><span class="n">AFHTTPRequestOperation</span> <span class="o">*</span><span class="n">operation</span><span class="p">,</span> <span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;Error:</span><span class="se">\n</span><span class="s">%@&quot;</span><span class="p">,</span> <span class="n">error</span><span class="p">.</span><span class="n">localizedDescription</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>As you can see, here we are using our <code>AFHTTPClient subclass</code>, adding relative path to specify what we want to do, in this case we are calling to <em>users/&lt;nickname&gt;</em> to get information relative to this user.</p>
+
+<p>On success we call to <code>loadInfo</code> method that is responsible to manage all information and include it in our labels, buttons or whatever as follows.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">loadInfo:</span><span class="p">(</span><span class="n">NSDictionary</span> <span class="o">*</span><span class="p">)</span><span class="nv">responseDict</span><span class="p">{</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">avatar</span> <span class="nl">setImageWithURL:</span><span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="n">responseDict</span><span class="p">[</span><span class="s">@&quot;avatar_url&quot;</span><span class="p">]]];</span>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">name</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">responseDict</span><span class="p">[</span><span class="s">@&quot;name&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">company</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">responseDict</span><span class="p">[</span><span class="s">@&quot;company&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">responseDict</span><span class="p">[</span><span class="s">@&quot;location&quot;</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">NSString</span> <span class="o">*</span><span class="n">repoStr</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nl">stringWithFormat:</span><span class="s">@&quot;%@&quot;</span><span class="p">,</span> <span class="n">responseDict</span><span class="p">[</span><span class="s">@&quot;public_repos&quot;</span><span class="p">]];</span>
+</span><span class='line'>  <span class="n">NSString</span> <span class="o">*</span><span class="n">followingStr</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nl">stringWithFormat:</span><span class="s">@&quot;%@&quot;</span><span class="p">,</span> <span class="n">responseDict</span><span class="p">[</span><span class="s">@&quot;following&quot;</span><span class="p">]];</span>
+</span><span class='line'>  <span class="n">NSString</span> <span class="o">*</span><span class="n">followersStr</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nl">stringWithFormat:</span><span class="s">@&quot;%@&quot;</span><span class="p">,</span> <span class="n">responseDict</span><span class="p">[</span><span class="s">@&quot;followers&quot;</span><span class="p">]];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">reposButton</span> <span class="nl">setTitle:</span><span class="n">repoStr</span> <span class="nl">forState:</span><span class="n">UIControlStateNormal</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">followingButton</span> <span class="nl">setTitle:</span><span class="n">followingStr</span> <span class="nl">forState:</span><span class="n">UIControlStateNormal</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">followersButton</span> <span class="nl">setTitle:</span><span class="n">followersStr</span> <span class="nl">forState:</span><span class="n">UIControlStateNormal</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>As you can see, <strong>JSON</strong> is converted to an <code>NSDictionary</code>, so it’s easy to access to every key value, so one more time my advice is that open the full JSON in your favourite text editor and select fields that you need to show on the screen.</p>
+
+<p>Finally we need to include IBOutlets for each button that will load follower users, following users and repositories and prepareSegue for the next view controller that depends of the name of the user.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">IBAction</span><span class="p">)</span><span class="nf">loadRepos</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">self</span> <span class="nl">performSegueWithIdentifier:</span><span class="n">kRepoSegue</span> <span class="nl">sender:</span><span class="n">self</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">IBAction</span><span class="p">)</span><span class="nf">loadFollowers</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">self</span> <span class="nl">performSegueWithIdentifier:</span><span class="n">kFollowersSegue</span> <span class="nl">sender:</span><span class="n">self</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">IBAction</span><span class="p">)</span><span class="nf">loadFollowing</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">self</span> <span class="nl">performSegueWithIdentifier:</span><span class="n">kFollowingSegue</span> <span class="nl">sender:</span><span class="n">self</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">prepareForSegue:</span><span class="p">(</span><span class="n">UIStoryboardSegue</span> <span class="o">*</span><span class="p">)</span><span class="nv">segue</span> <span class="nf">sender:</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nv">sender</span><span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">([</span><span class="n">segue</span><span class="p">.</span><span class="n">identifier</span> <span class="nl">isEqualToString:</span><span class="n">kRepoSegue</span><span class="p">]){</span>
+</span><span class='line'>        <span class="n">JMRepoList</span> <span class="o">*</span><span class="n">repoList</span> <span class="o">=</span> <span class="n">segue</span><span class="p">.</span><span class="n">destinationViewController</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">repoList</span><span class="p">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">@&quot;Repositories&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">repoList</span><span class="p">.</span><span class="n">nickname</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">nickname</span><span class="p">.</span><span class="n">text</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span><span class="k">else</span> <span class="k">if</span> <span class="p">([</span><span class="n">segue</span><span class="p">.</span><span class="n">identifier</span> <span class="nl">isEqualToString:</span><span class="n">kFollowersSegue</span><span class="p">]){</span>
+</span><span class='line'>        <span class="n">JMFollowersList</span> <span class="o">*</span><span class="n">followersList</span> <span class="o">=</span> <span class="n">segue</span><span class="p">.</span><span class="n">destinationViewController</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">followersList</span><span class="p">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">@&quot;Followers&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">followersList</span><span class="p">.</span><span class="n">nickname</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">nickname</span><span class="p">.</span><span class="n">text</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">([</span><span class="n">segue</span><span class="p">.</span><span class="n">identifier</span> <span class="nl">isEqualToString:</span><span class="n">kFollowingSegue</span><span class="p">]){</span>
+</span><span class='line'>        <span class="n">JMFollowingList</span> <span class="o">*</span><span class="n">followingList</span> <span class="o">=</span> <span class="n">segue</span><span class="p">.</span><span class="n">destinationViewController</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">followingList</span><span class="p">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">@&quot;Following&quot;</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">followingList</span><span class="p">.</span><span class="n">nickname</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">nickname</span><span class="p">.</span><span class="n">text</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>4.1.6 Repositories, followers and following</h3>
+
+<p>Next three screens are very similar (being honest, maybe I should share same viewController), so I prefer explain it together.</p>
+
+<p>The main point is show a list of info (repos, followers or followings) related with an user, doing a request to different paths as will explain after. Final result should be similar to below image, so take your time to understand and recreate it with Interface Builder.</p>
+
+<p><img src="assets/8591_04_03.png" alt="Three screens with loaded information" /></p>
+
+<p>As I told before, lists get their info from different URLs that are:</p>
+
+<ul>
+<li>users/%@/repos</li>
+<li>users/%@/followers</li>
+<li>users/%@/following</li>
+</ul>
+
+
+<p>We’ll explain in depth followers screen because it’s the most complete (includes image loads), but remember that all source code is available on GitHub, so feel free to use as reference too.</p>
+
+<p>On first place, we need to define two properties, one to save nickname (it’s set from main screen) and another one to store array of followers:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">@interface</span> <span class="nc">JMFollowersList</span> : <span class="nc">UITableViewController</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">nickname</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">retain</span><span class="p">)</span> <span class="n">NSArray</span> <span class="o">*</span><span class="n">followers</span><span class="p">;</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Now in viewDidLoad method do a request to followers relative URL using our APIClient as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">viewDidLoad</span><span class="p">{</span>
+</span><span class='line'>    <span class="err">…</span>
+</span><span class='line'>    <span class="n">NSString</span> <span class="o">*</span><span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nl">stringWithFormat:</span><span class="s">@&quot;users/%@/followers&quot;</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">nickname</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">[[</span><span class="n">JMGitHubAPIClient</span> <span class="n">sharedClient</span><span class="p">]</span>
+</span><span class='line'>     <span class="nl">getPath:</span><span class="n">path</span>
+</span><span class='line'>     <span class="nl">parameters:</span><span class="nb">nil</span>
+</span><span class='line'>     <span class="nl">success:</span><span class="o">^</span><span class="p">(</span><span class="n">AFHTTPRequestOperation</span> <span class="o">*</span><span class="n">operation</span><span class="p">,</span> <span class="kt">id</span> <span class="n">responseObject</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="n">self</span><span class="p">.</span><span class="n">followers</span> <span class="o">=</span> <span class="n">responseObject</span><span class="p">;</span>
+</span><span class='line'>         <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">tableView</span> <span class="n">reloadData</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>     <span class="p">}</span> <span class="nl">failure:</span><span class="o">^</span><span class="p">(</span><span class="n">AFHTTPRequestOperation</span> <span class="o">*</span><span class="n">operation</span><span class="p">,</span> <span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>         <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;ERROR: %@&quot;</span><span class="p">,</span> <span class="n">error</span><span class="p">.</span><span class="n">localizedDescription</span><span class="p">);</span>
+</span><span class='line'>     <span class="p">}];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, that’s trivial: you only do a GET request to specific path, and when success copy JSON results in your array and reload table, so delegate methods will be called:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="cp">#pragma mark - Table Delegates  </span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nf">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">numberOfRowsInSection:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">section</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">followers</span><span class="p">.</span><span class="n">count</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">UITableViewCell</span> <span class="o">*</span><span class="p">)</span><span class="nf">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">cellForRowAtIndexPath:</span><span class="p">(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">CellIdentifier</span> <span class="o">=</span> <span class="s">@&quot;Identifier&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">UITableViewCell</span> <span class="o">*</span><span class="n">cell</span> <span class="o">=</span> <span class="p">[</span><span class="n">tableView</span> <span class="nl">dequeueReusableCellWithIdentifier:</span><span class="n">CellIdentifier</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">cell</span><span class="p">){</span>
+</span><span class='line'>      <span class="n">cell</span> <span class="o">=</span> <span class="p">[[</span><span class="n">UITableViewCell</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithStyle:</span><span class="n">UITableViewCellStyleSubtitle</span> <span class="nl">reuseIdentifier:</span><span class="n">CellIdentifier</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">NSDictionary</span> <span class="o">*</span><span class="n">followersDict</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">followers</span> <span class="nl">objectAtIndex:</span><span class="n">indexPath</span><span class="p">.</span><span class="n">row</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">cell</span><span class="p">.</span><span class="n">imageView</span>
+</span><span class='line'>      <span class="nl">setImageWithURL:</span><span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="n">followersDict</span><span class="p">[</span><span class="s">@&quot;avatar_url&quot;</span><span class="p">]]</span>
+</span><span class='line'>      <span class="nl">placeholderImage:</span><span class="p">[</span><span class="n">UIImage</span> <span class="nl">imageNamed:</span><span class="s">@&quot;icon.png&quot;</span><span class="p">]];</span>
+</span><span class='line'>      <span class="n">cell</span><span class="p">.</span><span class="n">textLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">followersDict</span><span class="p">[</span><span class="s">@&quot;login&quot;</span><span class="p">];</span>
+</span><span class='line'>      <span class="n">cell</span><span class="p">.</span><span class="n">detailTextLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">followersDict</span><span class="p">[</span><span class="s">@&quot;html_url&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">cell</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Here you load all info in your cells as is usual, and use UIImageView category included in AFNetworking to load UIImageView easily.</p>
+
+<p>Finally, we’ll create another viewController that only includes a webView, which is loaded with URL (friend GitHub profile in this case) as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">didSelectRowAtIndexPath:</span><span class="p">(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span><span class="p">{</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">self</span> <span class="nl">performSegueWithIdentifier:</span><span class="n">kWebSegue</span> <span class="nl">sender:</span><span class="n">self</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">prepareForSegue:</span><span class="p">(</span><span class="n">UIStoryboardSegue</span> <span class="o">*</span><span class="p">)</span><span class="nv">segue</span> <span class="nf">sender:</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nv">sender</span><span class="p">{</span>
+</span><span class='line'>    <span class="n">JMWebView</span> <span class="o">*</span><span class="n">webView</span> <span class="o">=</span> <span class="n">segue</span><span class="p">.</span><span class="n">destinationViewController</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">NSDictionary</span> <span class="o">*</span><span class="n">followersDict</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">followers</span> <span class="nl">objectAtIndex:</span><span class="n">self</span><span class="p">.</span><span class="n">tableView</span><span class="p">.</span><span class="n">indexPathForSelectedRow</span><span class="p">.</span><span class="n">row</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">webView</span><span class="p">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">followersDict</span><span class="p">[</span><span class="s">@&quot;html_url&quot;</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>That’s all; the other two screens are the same thing changing URL of request and fields names gotten from JSON.</p>
+
+<h2>4.2 Authenticated APIs</h2>
+
+<p>First part of this chapter explained how to consume a public API, but sometimes you need to be logged to ask to this API specific information, for example what messages you have on your Facebook inbox or your last checking on Foursquare.</p>
+
+<p>Login could be one of the most difficult things to do on API management, but fortunately time ago appears some standards protocols to this purpose, one of these is OAuth that has different versions.</p>
+
+<p>On this second part of this chapter, we’ll create a mini client for Instagram social network, where we’ll see a list of our friends and inside of each one, a list of their photos with filter names.</p>
+
+<h3>4.2.1 Register application</h3>
+
+<p>Because we’ll need to log in from our application, first step is request permission to Instagram about our application, so go to <a href="http://instagram.com/developer/">http://instagram.com/developer/</a> and click on Register Your Application, where you should see a screen as image below:</p>
+
+<p><img src="assets/8591_04_05.png" alt="Registering InstAFN application on Instagram service" /></p>
+
+<p>Mainly you need to set the name and the description for your application, website, and finally, a redirect URL that will be called after user log in or when access.</p>
+
+<p>For example, when user log in correctly with InstAFN he will be redirect to <a href="http://tactilapp.com/#access_token=&amp;lt;user_token&amp;gt;">http://tactilapp.com/#access_token=&lt;user_token&gt;</a>, so we’ll catch these token to use on the user session, but we’ll explain it later.</p>
+
+<h3>4.2.2 Skeleton of InstAFN</h3>
+
+<p>This time we’ll use also storyboard to simplify app flow, in this case we have a main view controller with a table inside of it where we’ll show our Instagram fiends, and where user click on one cell, we’ll show all his photos on another table together used filters. Finally, if user clicks one photo, application loads a web view with Instagram webpage for this. You can take image below as guide if you want.</p>
+
+<p><img src="assets/8591_04_06.png" alt="Skeleton of InstAFN application" /></p>
+
+<p>Maybe now you are asking about ‘Ask Credentials’ view controller, but don’t worry, I didn’t forget it, it’s just I’ll explain it on next subsection. Go ahead!</p>
+
+<h3>4.2.3 Login with OAuth2</h3>
+
+<p>Instagram implements <em>OAuth2</em>  as authentication system, so first of all we need to ask about a token which will be send on all requests to API if we want to be known as authenticated users.</p>
+
+<p>For this example we’ll define a public property on our AppDelegate where we store our token once loged in as follows.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">token</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>After that we need to create another view controller which will be called always that user try to do any authenticated task without be log in, this is the <code>Ask Credentials</code> controller that you see on storyboard figure.</p>
+
+<p>For this purpose, we need to do an authorize request to Instagram oauth server, passing as parameters our client id (you can found it on your Instagram application page) and callback URL (it needs to be the same which you fill on your application page) as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">kClientID</span> <span class="o">=</span> <span class="s">@&quot;f68621ad1bd44bbf90818fe6851644cb&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">kCallbackURL</span> <span class="o">=</span> <span class="s">@&quot;tactilapp.com&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@interface</span> <span class="nc">JMAskCredentials</span><span class="p">()</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UIWebView</span> <span class="o">*</span><span class="n">web</span><span class="p">;</span>
+</span><span class='line'><span class="k">@end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@implementation</span> <span class="nc">JMAskCredentials</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">viewDidLoad</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">NSString</span> <span class="o">*</span><span class="n">oauthURL</span> <span class="o">=</span> <span class="s">@&quot;https://api.instagram.com/oauth/authorize&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">NSString</span> <span class="o">*</span><span class="n">authURL</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nl">stringWithFormat:</span><span class="s">@&quot;%@/?client_id=%@&amp;redirect_uri=http://%@&amp;response_type=token&quot;</span><span class="p">,</span> <span class="n">oauthURL</span><span class="p">,</span> <span class="n">kClientID</span><span class="p">,</span> <span class="n">kCallbackURL</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">NSURLRequest</span> <span class="o">*</span><span class="n">req</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURLRequest</span> <span class="nl">requestWithURL:</span><span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="n">authURL</span><span class="p">]];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">web</span> <span class="nl">loadRequest:</span><span class="n">req</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>This request will retrieve a webpage where user needs to fill his username and password, and if all is correct, allow to our application to access to his basic information as shown in image below.</p>
+
+<p><img src="assets/8591_04_07.png" alt="Logging with Instagram OAuth service" /></p>
+
+<p>When user log in correctly and allow us to access his data, web view will be redirect to our callback URL followed of the access token if all was ok, or with error messages if any failed.</p>
+
+<p>Is for this that we need to watch over all requests in web view using a delegate method of the web view controller. If we found any string with ‘access_token’ in, we set this to AppDelegate property and close this view controller.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">BOOL</span><span class="p">)</span><span class="nf">webView:</span><span class="p">(</span><span class="n">UIWebView</span> <span class="o">*</span><span class="p">)</span><span class="nv">webView</span> <span class="nf">shouldStartLoadWithRequest:</span><span class="p">(</span><span class="n">NSURLRequest</span> <span class="o">*</span><span class="p">)</span><span class="nv">request</span> <span class="nf">navigationType:</span><span class="p">(</span><span class="n">UIWebViewNavigationType</span><span class="p">)</span><span class="nv">navigationType</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">([</span><span class="n">request</span><span class="p">.</span><span class="n">URL</span><span class="p">.</span><span class="n">host</span> <span class="nl">isEqualToString:</span><span class="n">kCallbackURL</span><span class="p">]</span>
+</span><span class='line'>      <span class="o">&amp;&amp;</span> <span class="n">request</span><span class="p">.</span><span class="n">URL</span><span class="p">.</span><span class="n">fragment</span><span class="p">){</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="n">NSString</span> <span class="o">*</span><span class="n">anchor</span> <span class="o">=</span> <span class="n">request</span><span class="p">.</span><span class="n">URL</span><span class="p">.</span><span class="n">fragment</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">NSRange</span> <span class="n">range</span> <span class="o">=</span> <span class="p">[</span><span class="n">anchor</span> <span class="nl">rangeOfString:</span><span class="s">@&quot;access_token=&quot;</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">range</span><span class="p">.</span><span class="n">length</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+</span><span class='line'>          <span class="n">NSString</span> <span class="o">*</span><span class="n">token</span> <span class="o">=</span> <span class="p">[</span><span class="n">anchor</span> <span class="nl">substringFromIndex:</span><span class="n">range</span><span class="p">.</span><span class="n">location</span> <span class="o">+</span> <span class="n">range</span><span class="p">.</span><span class="n">length</span><span class="p">];</span>
+</span><span class='line'>          <span class="n">JMAppDelegate</span> <span class="o">*</span><span class="n">delegate</span> <span class="o">=</span> <span class="p">[[</span><span class="n">UIApplication</span> <span class="n">sharedApplication</span><span class="p">]</span> <span class="n">delegate</span><span class="p">];</span>
+</span><span class='line'>          <span class="n">delegate</span><span class="p">.</span><span class="n">token</span> <span class="o">=</span> <span class="n">token</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">[</span><span class="n">self</span> <span class="nl">close:</span><span class="n">self</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="k">return</span> <span class="n">NO</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">YES</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>At this moment, we’ve stored token, so from now we can add it to our request and we’ll be registered user facing to Instagram.</p>
+
+<h3>4.2.4 Instagram API Client</h3>
+
+<p>As we did on first part of this chapter, we need to subclass <code>AFHTTPClient</code> to configure all our requests from now. Procedure is almost the same that in the first part, changing URL to requests to <a href="https://api.instagram.com/v1/">https://api.instagram.com/v1/</a>, but the novelty is that we need to add token on all requests, so we going to override getPath implementation as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">getPath:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">parameters:</span><span class="p">(</span><span class="n">NSDictionary</span> <span class="o">*</span><span class="p">)</span><span class="nv">parameters</span>
+</span><span class='line'>  <span class="nf">success:</span><span class="p">(</span><span class="kt">void</span> <span class="p">(</span><span class="o">^</span><span class="p">)(</span><span class="n">AFHTTPRequestOperation</span> <span class="o">*</span><span class="p">,</span> <span class="kt">id</span><span class="p">))</span><span class="nv">success</span>
+</span><span class='line'>  <span class="nf">failure:</span><span class="p">(</span><span class="kt">void</span> <span class="p">(</span><span class="o">^</span><span class="p">)(</span><span class="n">AFHTTPRequestOperation</span> <span class="o">*</span><span class="p">,</span> <span class="n">NSError</span> <span class="o">*</span><span class="p">))</span><span class="nv">failure</span><span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">NSMutableDictionary</span> <span class="o">*</span><span class="n">param</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableDictionary</span> <span class="n">dictionary</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">JMAppDelegate</span> <span class="o">*</span><span class="n">delegate</span> <span class="o">=</span> <span class="p">[[</span><span class="n">UIApplication</span> <span class="n">sharedApplication</span><span class="p">]</span> <span class="n">delegate</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">delegate</span><span class="p">.</span><span class="n">token</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">param</span> <span class="nl">setValue:</span><span class="n">delegate</span><span class="p">.</span><span class="n">token</span> <span class="nl">forKey:</span><span class="s">@&quot;access_token&quot;</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">[</span><span class="n">super</span> <span class="nl">getPath:</span><span class="n">path</span> <span class="nl">parameters:</span><span class="n">param</span> <span class="nl">success:</span><span class="n">success</span> <span class="nl">failure:</span><span class="n">failure</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>From now, all getPath requests will be authenticated by default, so we can start to shoot screens!</p>
+
+<h3>4.2.5 Load friends of logged user</h3>
+
+<p>On first screen we’ll include a button to reload friend list. This button monitors the token, and while it doesn’t exist will show credentials screen where user need to log in to continue. When you finish this example, you’ll have some like image below.</p>
+
+<p><img src="assets/8591_04_08.png" alt="Friend list for current user" /></p>
+
+<p>When user has a token, app will do a request using InstagramAPIClient to get friend followers because token is being sent so user is authenticated for Instagram. Code is very similar to that seen in previous chapters as follows, but remember that APIClient is working for you adding token in each request.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">IBAction</span><span class="p">)</span><span class="nf">loadFriends:</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nv">sender</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">JMAppDelegate</span> <span class="o">*</span><span class="n">delegate</span> <span class="o">=</span> <span class="p">[[</span><span class="n">UIApplication</span> <span class="n">sharedApplication</span><span class="p">]</span> <span class="n">delegate</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">delegate</span><span class="p">.</span><span class="n">token</span><span class="p">){</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">self</span> <span class="nl">performSegueWithIdentifier:</span><span class="s">@&quot;askCredencials&quot;</span> <span class="nl">sender:</span><span class="n">self</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+</span><span class='line'>      <span class="p">[[</span><span class="n">JMInstagramAPIClient</span> <span class="n">sharedClient</span><span class="p">]</span>
+</span><span class='line'>          <span class="nl">getPath:</span><span class="s">@&quot;users/self/followed-by&quot;</span>
+</span><span class='line'>          <span class="nl">parameters:</span><span class="nb">nil</span>
+</span><span class='line'>          <span class="nl">success:</span><span class="o">^</span><span class="p">(</span><span class="n">AFHTTPRequestOperation</span> <span class="o">*</span><span class="n">operation</span><span class="p">,</span> <span class="kt">id</span> <span class="n">responseObject</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">self</span><span class="p">.</span><span class="n">following</span> <span class="o">=</span> <span class="n">responseObject</span><span class="p">[</span><span class="s">@&quot;data&quot;</span><span class="p">];</span>
+</span><span class='line'>              <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">table</span> <span class="n">reloadData</span><span class="p">];</span>
+</span><span class='line'>          <span class="p">}</span> <span class="nl">failure:</span><span class="o">^</span><span class="p">(</span><span class="n">AFHTTPRequestOperation</span> <span class="o">*</span><span class="n">operation</span><span class="p">,</span> <span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;%@&quot;</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>      <span class="p">];</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>4.2.6 Friend’s photos</h3>
+
+<p>When a user is selected between user’s friend list, a new view controller will load all his photos and which filter he used. For this purpose is important to define a property with id of the user because Instagram API will require it, and after that load info as follows.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">viewDidLoad</span><span class="p">{</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">super</span> <span class="n">viewDidLoad</span><span class="p">];</span>
+</span><span class='line'>  <span class="n">NSString</span> <span class="o">*</span><span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nl">stringWithFormat:</span><span class="s">@&quot;users/%@/media/recent&quot;</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">idUser</span><span class="p">];</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="p">[</span><span class="n">JMInstagramAPIClient</span> <span class="n">sharedClient</span><span class="p">]</span> <span class="nl">getPath:</span><span class="n">path</span>
+</span><span class='line'>      <span class="nl">parameters:</span><span class="nb">nil</span>
+</span><span class='line'>      <span class="nl">success:</span><span class="o">^</span><span class="p">(</span><span class="n">AFHTTPRequestOperation</span> <span class="o">*</span><span class="n">operation</span><span class="p">,</span> <span class="kt">id</span> <span class="n">responseObject</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">self</span><span class="p">.</span><span class="n">photos</span> <span class="o">=</span> <span class="n">responseObject</span><span class="p">[</span><span class="s">@&quot;data&quot;</span><span class="p">];</span>
+</span><span class='line'>          <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">table</span> <span class="n">reloadData</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">}</span> <span class="nl">failure:</span><span class="o">^</span><span class="p">(</span><span class="n">AFHTTPRequestOperation</span> <span class="o">*</span><span class="n">operation</span><span class="p">,</span> <span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;%@&quot;</span><span class="p">,</span> <span class="n">error</span><span class="p">.</span><span class="n">localizedDescription</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>As you can see, we always repeat some structure here: request info, load in an array and reload table to show info on screen. Really you should add more stuff to make a killer application, but with respect to consume an API that’s enough to have a final screen as image below.</p>
+
+<p><img src="assets/8591_04_09.png" alt="Friend’s photo list and specific photo loaded in a web view" /></p>
+
+<p>On right image above, you see Instagram photo loaded in a web view. You could have load only image into a UIImageView, or animate while you show up, imagination is your limit!</p>
+
+<h2>4.3 Summary</h2>
+
+<p>In this chapter we learned how to consume a public API (GitHub) and we have seen all possibilities that gives as developers: you can enrich your application using information of different services.</p>
+
+<p>Sometimes it’s necessary to be logged in these services (social networks for example), so on second part of the chapter we saw how to log in from our application to Instagram and do things relative to this user, for example see a list of friend photos.</p>
+
+<p>In the next chapter we will fight with these pages, which don’t provide us a public API, so we need to scraping the content.</p>
+
+  
+    <footer>
+      
+      
+        <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://AFNBook.github.io/4-apis.html" data-via="" data-counturl="http://AFNBook.github.io/4-apis.html" >Tweet</a>
+  
+  
+  
+</div>
+
+      
+    </footer>
+  
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Download Book</h1>
+<ul id="recent_posts">
+	<li class="post"><a href="http://d.pr/f/qvzU">Kindle version (.mobi)</a></li>
+	<li class="post"><a href="http://d.pr/f/DMSx">e-reader version (.epub)</a></li>
+</ul>
+</section>
+
+
+<section>
+<h1>Book index</h1>
+<ul id="recent_posts">
+<li class="post">
+<a href="/0-disclaimer.html">AFNetworking from zero: Disclaimer</a>
+</li>
+
+<li class="post">
+<a href="/1-install-setup.html">1. Installing and Setting up the Project</a>
+</li>
+
+<li class="post">
+<a href="/2-first-contact.html">2. First contact with AFNetworking: Read a simple web</a>
+</li>
+
+<li class="post">
+<a href="/3-data-consumption.html">3. Standard data consumption</a>
+</li>
+
+<li class="post">
+<a href="/4-apis.html">4. API’s world</a>
+</li>
+
+<li class="post">
+<a href="/5-scrapping.html">5. Scrapping the web</a>
+</li>
+
+<li class="post">
+<a href="/6-migrate-asihttprequest.html">6. Migrate from ASIHTTPRequest</a>
+</li>
+</ul>
+</section>
+  
+</aside>
+
+
+      </div>
+    </div>
+    <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Jorge Maroto -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a>. Design by <a href="http://octopressthemes.com">Octopress Themes</a></span>
+</p>
+
+</footer>
+    
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+  </div>
+</body>
+</html>

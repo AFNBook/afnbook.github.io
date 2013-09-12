@@ -1,12 +1,40 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://AFNBook.github.io/blog/archives/</loc>
-        <lastmod>2013-09-11T08:55:57+02:00</lastmod>
+        <loc>http://AFNBook.github.io/blog/2013/09/12/giving-a-little-soul/</loc>
+        <lastmod>2013-09-12T19:09:28+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://AFNBook.github.io/0-disclaimer.html</loc>
+        <lastmod>2013-09-12T18:42:34+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://AFNBook.github.io/1-install-setup.html</loc>
+        <lastmod>2013-09-12T18:43:31+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://AFNBook.github.io/2-first-contact.html</loc>
+        <lastmod>2013-09-12T18:28:20+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://AFNBook.github.io/3-data-consumption.html</loc>
+        <lastmod>2013-09-12T18:41:50+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://AFNBook.github.io/4-apis.html</loc>
+        <lastmod>2013-09-12T18:44:53+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://AFNBook.github.io/5-scrapping.html</loc>
+        <lastmod>2013-09-12T18:45:40+02:00</lastmod>
+    </url>
+    <url>
+        <loc>http://AFNBook.github.io/6-migrate-asihttprequest.html</loc>
+        <lastmod>2013-09-12T18:45:46+02:00</lastmod>
     </url>
     <url>
         <loc>http://AFNBook.github.io/</loc>
-        <lastmod>2013-09-11T08:55:57+02:00</lastmod>
+        <lastmod>2013-09-12T19:10:17+02:00</lastmod>
     </url>
     <url>
         <loc>http://AFNBook.github.io/robots.txt</loc>

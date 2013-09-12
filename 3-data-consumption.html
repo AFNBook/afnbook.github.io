@@ -1,0 +1,1019 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>3. Standard data consumption - AFNBook experiment</title>
+  <meta name="author" content="Jorge Maroto">
+
+  
+  <meta name="description" content="3. Standard Data Consumption At this point you know to get simple text documents from internet, but usually you’ll need manage more complex data i.e &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://AFNBook.github.io/3-data-consumption.html">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="AFNBook experiment" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=Arvo:400,400italic,700,700italic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=Playball" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body>
+  <header role="banner"><hgroup>
+  <h1><a href="/">AFNBook experiment</a></h1>
+  
+    <h2>A blog that is a book.</h2>
+  
+</hgroup>
+
+</header>
+  <div id="navigation">
+    <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:AFNBook.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/0-disclaimer.html">Book</a></li>
+	<li class="post"><a href="http://d.pr/f/qvzU">Download Kindle version (.mobi)</a></li>
+	<li class="post"><a href="http://d.pr/f/DMSx">Download e-reader version (.epub)</a></li>
+</ul>
+</nav>
+  </div>
+  <div id="body"  >
+    <div id="main">
+      <div id="content">
+        <div>
+<article role="article">
+  
+  <header>
+    <h1 class="entry-title">3. Standard Data Consumption</h1>
+    
+  </header>
+  
+  <p>At this point you know to get simple text documents from internet, but usually you’ll need manage more complex data i.e. JSON, XML, so on this chapter we’ll learn how to do that using some helpers that AFNetworking provides.</p>
+
+<p>This chapter will be very important because almost all social networks or web services in general use these kinds of structured files on their APIs, so we’ll dedicate the next full chapter for this purpose.</p>
+
+<p>At last of this chapter, we’ll teach you another helper includes in AFNetworking as objective-c category that extends UIImageView class, and is very useful to manage asynchronous image downloads.</p>
+
+<h2>3.1. Loading structured data in our app</h2>
+
+<p>As first part of this chapter, we’ll learn how to use structured data loaded from Internet in our applications. This will be done using three different helpers that AFNetworking provides, one by each kind of file:</p>
+
+<ul>
+<li>Property list files (<strong>.plist</strong>).</li>
+<li>JavaScript Object Notation (<strong>JSON</strong>).</li>
+<li>Extensible Markup Language (<strong>XML</strong>).</li>
+</ul>
+
+
+<p>All knowledge explained here will be used in next chapter to consume different public APIs, so please pay attention.</p>
+
+<h2>3.2. .plist</h2>
+
+<p>This kind of file is popular because is one of the easiest ways to persist data when you develop an application.</p>
+
+<p>Basically is a subset of XML files which uses a <code>DTD</code> (Document Type Definition) defined by Apple (you can see this definition on <a href="http://www.apple.com/DTDs/PropertyList-1.0.dtd">http://www.apple.com/DTDs/PropertyList-1.0.dtd</a>) which include the most popular data types (string, number, array, object) and provides help when you need to manage the data included in, turning file in a <strong>NSDictionary</strong> that is easy to handle by programmer. In the same way, it’s easy to convert a NSDictionary to a <code>.plist</code> file, but that’s out of scope of the book.</p>
+
+<p>For understand the utility of <code>.plist</code> files and how treat with it using AFNetworking, we’ll go to develop an application that changes their appearance depending content of a property list file downloaded from Internet.</p>
+
+<h3>3.2.1. Squeleton of Configurations</h3>
+
+<p>The first step is to create a new XCode project that we’ll name Configurations. In this case we use a <code>Single View Application</code> template, and include two buttons and one textview where a typical <em>‘lorem ipsum’</em> appears written by default, that’s enough to test the behavior of our configurations. Final result should be something like following figure:</p>
+
+<p><img src="assets/8591_03_01.png" alt="Initial layout (without a theme loaded)" /></p>
+
+<p>As we will to change some properties of these components (color, font, etc.), it’s required that you connect these with IBOutlets to your class as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">@interface</span> <span class="nc">JMViewController</span> <span class="p">()</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UITextView</span> <span class="o">*</span><span class="n">textView</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UIButton</span> <span class="o">*</span><span class="n">buttonBlack</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UIButton</span> <span class="o">*</span><span class="n">buttonWhite</span><span class="p">;</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Now, we need to install and setup AFNetworking to run in our application. We’ll take the advantage of be using Cocoa Pods to include a helper to handle easily colors in hexadecimal format, it’s named <strong>EDColor</strong>. Here we go, create a <code>Podfile</code> and include on it the following lines:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="n">platform</span> <span class="o">:</span><span class="n">ios</span><span class="p">,</span> <span class="err">&#39;</span><span class="mf">6.0</span><span class="err">&#39;</span>
+</span><span class='line'><span class="n">pod</span> <span class="err">&#39;</span><span class="n">AFNetworking</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="mf">1.0</span><span class="err">&#39;</span>
+</span><span class='line'><span class="n">pod</span> <span class="err">&#39;</span><span class="n">EDColor</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="mf">0.2</span><span class="err">&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>After that, execute <code>pod install</code> and remember to open Configurations<em>.xcworkspace</em> instead of <em>.xcproject</em> file from now.</p>
+
+<p>Finally we’ll include headers on our view controller as follow:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="cp">#import &lt;AFNetworking/AFNetworking.h&gt;  </span>
+</span><span class='line'><span class="cp">#import &lt;EDColor/UIColor+Hex.h&gt;  </span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>3.2.2. Fetching themes from Internet</h2>
+
+<p>We hung two different themes to use in your application:</p>
+
+<ul>
+<li>black theme (<a href="http://afnbook.herokuapp.com/theme_black.plist">http://afnbook.herokuapp.com/theme_black.plist</a>)</li>
+<li>white theme (<a href="http://afnbook.herokuapp.com/theme_white.plist">http://afnbook.herokuapp.com/theme_white.plist</a>)</li>
+</ul>
+
+
+<p>If you download one of these files you’ll see a structure like the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+</span><span class='line'><span class="cp">&lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;</span>
+</span><span class='line'><span class="nt">&lt;plist</span> <span class="na">version=</span><span class="s">&quot;1.0&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'><span class="nt">&lt;dict&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;key&gt;</span>background<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;dict&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>color<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>#000000<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/dict&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;key&gt;</span>buttons<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;dict&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>background_color<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;string&gt;</span>#FFFFFF<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>font<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;dict&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;key&gt;</span>color<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;string&gt;</span>#0000FF<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;key&gt;</span>family<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;string&gt;</span>Helvetica-Bold<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;key&gt;</span>size<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;integer&gt;</span>20<span class="nt">&lt;/integer&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/dict&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/dict&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;key&gt;</span>textview<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;dict&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;key&gt;</span>font<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;dict&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;key&gt;</span>color<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;string&gt;</span>#FFFFFF<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;key&gt;</span>size<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;integer&gt;</span>18<span class="nt">&lt;/integer&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;key&gt;</span>family<span class="nt">&lt;/key&gt;</span>
+</span><span class='line'>          <span class="nt">&lt;string&gt;</span>Helvetica-Light<span class="nt">&lt;/string&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;/dict&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/dict&gt;</span>
+</span><span class='line'><span class="nt">&lt;/dict&gt;</span>
+</span><span class='line'><span class="nt">&lt;/plist&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, appear three big groups (background, buttons and textview), each one with their properties. These will be used to change appearance of our app.</p>
+
+<p>First of all, we need to download file from Internet, in these case we’ll use AFPropertyListRequestOperation class that retrieve us a NSDictionary with content of the file. Because we’ll load different theme files, is advisable to create a method that help us in download tasks as you can see below:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">loadThemeURL:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">urlString</span><span class="p">{</span>
+</span><span class='line'><span class="n">NSURL</span> <span class="o">*</span><span class="n">url</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="n">urlString</span><span class="p">];</span>
+</span><span class='line'><span class="n">NSURLRequest</span> <span class="o">*</span><span class="n">request</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSURLRequest</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithURL:</span><span class="n">url</span><span class="p">];</span>
+</span><span class='line'><span class="n">AFPropertyListRequestOperation</span> <span class="o">*</span><span class="n">properties</span> <span class="o">=</span> <span class="p">[</span><span class="n">AFPropertyListRequestOperation</span>
+</span><span class='line'>  <span class="nl">propertyListRequestOperationWithRequest:</span><span class="n">request</span>
+</span><span class='line'>  <span class="nl">success:</span><span class="o">^</span><span class="p">(</span><span class="n">NSURLRequest</span> <span class="o">*</span><span class="n">request</span><span class="p">,</span> <span class="n">NSHTTPURLResponse</span> <span class="o">*</span><span class="n">response</span><span class="p">,</span> <span class="kt">id</span> <span class="n">propertyList</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">self</span> <span class="nl">updateViewWithTheme:</span><span class="p">(</span><span class="n">NSDictionary</span> <span class="o">*</span><span class="p">)</span><span class="n">propertyList</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">}</span> <span class="nl">failure:</span><span class="o">^</span><span class="p">(</span><span class="n">NSURLRequest</span> <span class="o">*</span><span class="n">request</span><span class="p">,</span> <span class="n">NSHTTPURLResponse</span> <span class="o">*</span><span class="n">response</span><span class="p">,</span> <span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">,</span> <span class="kt">id</span> <span class="n">propertyList</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;ERROR: %@</span><span class="se">\n</span><span class="s">%@&quot;</span><span class="p">,</span> <span class="n">error</span><span class="p">.</span><span class="n">localizedDescription</span><span class="p">,</span> <span class="n">propertyList</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}];</span>
+</span><span class='line'><span class="p">[</span><span class="n">properties</span> <span class="n">start</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Sure that the first two lines are familiar to you, because you used in last chapter in the same way. Third line use a subclass of  <code>AFHTTPRequestOperation</code> that will execute a block when success or another when fail. After that, call to start operation method.</p>
+
+<p>Success block includes request and response parameters, besides a propertyList that should be an NSDictionary which contains all the property list using key value model.
+In this case, we create also another method which will update the view using these values as is shown in next subsection.</p>
+
+<h3>3.2.3. Updating the view</h3>
+
+<p>Once we have NSDictionary with properties that we want to change on the view, we need to update these properties. For this purpose, we going to create a method to avoid repeat code by each button as follow:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">updateViewWithTheme:</span><span class="p">(</span><span class="n">NSDictionary</span> <span class="o">*</span><span class="p">)</span><span class="nv">config</span><span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Background  </span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">view</span><span class="p">.</span><span class="n">backgroundColor</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIColor</span> <span class="nl">colorWithHexString:</span><span class="n">config</span><span class="p">[</span><span class="s">@&quot;background&quot;</span><span class="p">][</span><span class="s">@&quot;color&quot;</span><span class="p">]];</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Buttons  </span>
+</span><span class='line'>    <span class="n">UIColor</span> <span class="o">*</span><span class="n">buttonBC</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIColor</span> <span class="nl">colorWithHexString:</span><span class="n">config</span><span class="p">[</span><span class="s">@&quot;buttons&quot;</span><span class="p">][</span><span class="s">@&quot;background_color&quot;</span><span class="p">]];</span>
+</span><span class='line'>    <span class="n">NSString</span> <span class="o">*</span><span class="n">buttonFontFamily</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s">@&quot;buttons&quot;</span><span class="p">][</span><span class="s">@&quot;font&quot;</span><span class="p">][</span><span class="s">@&quot;family&quot;</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">UIColor</span> <span class="o">*</span><span class="n">buttonFontColor</span> <span class="o">=</span>  <span class="p">[</span><span class="n">UIColor</span> <span class="nl">colorWithHexString:</span><span class="n">config</span><span class="p">[</span><span class="s">@&quot;buttons&quot;</span><span class="p">][</span><span class="s">@&quot;font&quot;</span><span class="p">][</span><span class="s">@&quot;color&quot;</span><span class="p">]];</span>
+</span><span class='line'>    <span class="n">CGFloat</span> <span class="n">buttonFontSize</span> <span class="o">=</span> <span class="p">((</span><span class="n">NSNumber</span> <span class="o">*</span><span class="p">)</span><span class="n">config</span><span class="p">[</span><span class="s">@&quot;buttons&quot;</span><span class="p">][</span><span class="s">@&quot;font&quot;</span><span class="p">][</span><span class="s">@&quot;size&quot;</span><span class="p">]).</span><span class="n">floatValue</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">buttonBlack</span><span class="p">.</span><span class="n">backgroundColor</span> <span class="o">=</span> <span class="n">buttonBC</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">buttonBlack</span><span class="p">.</span><span class="n">titleLabel</span><span class="p">.</span><span class="n">font</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIFont</span> <span class="nl">fontWithName:</span><span class="n">buttonFontFamily</span> <span class="nl">size:</span><span class="n">buttonFontSize</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">buttonBlack</span><span class="p">.</span><span class="n">titleLabel</span><span class="p">.</span><span class="n">textColor</span> <span class="o">=</span> <span class="n">buttonFontColor</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">buttonWhite</span><span class="p">.</span><span class="n">backgroundColor</span> <span class="o">=</span> <span class="n">buttonBC</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">buttonWhite</span><span class="p">.</span><span class="n">titleLabel</span><span class="p">.</span><span class="n">font</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIFont</span> <span class="nl">fontWithName:</span><span class="n">buttonFontFamily</span> <span class="nl">size:</span><span class="n">buttonFontSize</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">buttonWhite</span><span class="p">.</span><span class="n">titleLabel</span><span class="p">.</span><span class="n">textColor</span> <span class="o">=</span> <span class="n">buttonFontColor</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// TextView  </span>
+</span><span class='line'>    <span class="n">NSString</span> <span class="o">*</span><span class="n">textFontFamily</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s">@&quot;textview&quot;</span><span class="p">][</span><span class="s">@&quot;font&quot;</span><span class="p">][</span><span class="s">@&quot;family&quot;</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">CGFloat</span> <span class="n">textFontSize</span> <span class="o">=</span> <span class="p">((</span><span class="n">NSNumber</span> <span class="o">*</span><span class="p">)</span><span class="n">config</span><span class="p">[</span><span class="s">@&quot;textview&quot;</span><span class="p">][</span><span class="s">@&quot;font&quot;</span><span class="p">][</span><span class="s">@&quot;size&quot;</span><span class="p">]).</span><span class="n">floatValue</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">UIColor</span> <span class="o">*</span><span class="n">textColor</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIColor</span> <span class="nl">colorWithHexString:</span><span class="n">config</span><span class="p">[</span><span class="s">@&quot;textview&quot;</span><span class="p">][</span><span class="s">@&quot;font&quot;</span><span class="p">][</span><span class="s">@&quot;color&quot;</span><span class="p">]];</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">textView</span><span class="p">.</span><span class="n">textColor</span> <span class="o">=</span> <span class="n">textColor</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">textView</span><span class="p">.</span><span class="n">font</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIFont</span> <span class="nl">fontWithName:</span><span class="n">textFontFamily</span> <span class="nl">size:</span><span class="n">textFontSize</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>That’s slice of code is very easy, you only update view attributes using values that you received on the plist file. In the case of the colors, we used UIColor category that allows us to create an <em>UIColor</em> using hexadecimal notation (i.e. <code>#FF0000</code> is red) which should be familiar to you if you developed web.</p>
+
+<p>As you can see, you can “navigate” inside of properties using their key-names, so you can use their values as you want.
+Final step is to call this method from each button using theme’s URLs as following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">blackURL</span> <span class="o">=</span> <span class="s">@&quot;http://afnbook.herokuapp.com/theme_black.plist&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">whiteURL</span> <span class="o">=</span> <span class="s">@&quot;http://afnbook.herokuapp.com/theme_white.plist&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">IBAction</span><span class="p">)</span><span class="nf">blackTheme</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">self</span> <span class="nl">loadThemeURL:</span><span class="n">blackURL</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">IBAction</span><span class="p">)</span><span class="nf">whiteTheme</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">[</span><span class="n">self</span> <span class="nl">loadThemeURL:</span><span class="n">whiteURL</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>If you run the app and press buttons, colors and fonts should be change and looks like below image:</p>
+
+<p><img src="assets/8591_03_02.png" alt="Black and white themes loaded." /></p>
+
+<p>That was all! You have learned an interesting method to load properties dynamically in your application. In the next section, you’ll learn how to manage more complex XML files that allowing you to load info to your app.</p>
+
+<h2>3.3. Loading XML in our app</h2>
+
+<p>As we learned before, property list is a kind of simplify XML that is very useful for settings purposes, but when we need more specific data, we’ll use common XML.<br/>
+In this case, we’ll create an application that shows Spain communities (more or less like regions on UK), and inside of each one, provinces. You’ll have more info about Spain territory organization on Wikipedia (<a href="http://es.wikipedia.org/wiki/Comunidades_Aut%C3%B3nomas_de_Espa%C3%B1a">http://es.wikipedia.org/wiki/Comunidades_Autónomas_de_España</a>), but anyway that’s an AFNetworking example not a geography class ☺.<br/>
+For this purpose, we create a XML file available on <a href="http://afnbook.herokuapp.com/provincias.xml">http://afnbook.herokuapp.com/provincias.xml</a> and with the follow structure:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="o">&lt;?</span><span class="n">xml</span> <span class="n">version</span><span class="o">=</span><span class="s">&quot;1.0&quot;</span><span class="o">?&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">spain</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="n">comunidad</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;Andalucía&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="n">image_comunidad</span><span class="o">&gt;</span><span class="nl">http:</span><span class="c1">//afnbook.herokuapp.com/flags/andalucia.png&lt;/image_comunidad&gt;  </span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="n">provincia</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="o">&lt;</span><span class="n">name</span><span class="o">&gt;</span><span class="n">Almer</span><span class="err">í</span><span class="n">a</span><span class="o">&lt;/</span><span class="n">name</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="o">&lt;</span><span class="n">image</span><span class="o">&gt;</span><span class="nl">http:</span><span class="c1">//afnbook.herokuapp.com/flags/almeria.png&lt;/image&gt;  </span>
+</span><span class='line'>      <span class="o">&lt;/</span><span class="n">provincia</span><span class="o">&gt;</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="n">provincia</span><span class="o">&gt;</span>
+</span><span class='line'>          <span class="err">…</span>
+</span><span class='line'>      <span class="o">&lt;/</span><span class="n">provincia</span><span class="o">&gt;</span>
+</span><span class='line'>      <span class="err">…</span>
+</span><span class='line'>  <span class="o">&lt;/</span><span class="n">comunidad</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="n">comunidad</span> <span class="err">…</span><span class="o">&gt;</span>
+</span><span class='line'>      <span class="err">…</span>
+</span><span class='line'>  <span class="o">&lt;/</span><span class="n">comunidad</span><span class="o">&gt;</span>
+</span><span class='line'><span class="o">&lt;/</span><span class="n">spain</span><span class="o">&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>It’s easy: Spain is composed of <code>comunidad</code>, and each <code>comunidad</code> is composed of <code>provincia</code>. Each element also includes an image that will be used on the last part of this chapter.</p>
+
+<h3>3.3.1. Squeleton of Comunities</h3>
+
+<p>Two view controllers will compose this app: a table with communities and a table with provinces. Due to that, we&rsquo;ll use storyboard to simplify process, as can be see in image below:</p>
+
+<p><img src="assets/8591_03_03.png" alt="Storyboard of the application" /></p>
+
+<p>We only create two UIViewController subclasses and include one UITableView in each. Also include a button on communities view controller that will start XML request. Don’t forget to link tables with each class using an IBOutlet as is usual.</p>
+
+<h3>3.3.2. Requesting XML from Internet</h3>
+
+<p>As at other times, first step is to download file from Internet and manage it. In this case, we’ll use <code>AFXMLRequestOperation</code> class, and method will be executed when button is pressed, so we’ll create an IBAction for that as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">sampleXML</span> <span class="o">=</span> <span class="s">@&quot;http://afnbook.herokuapp.com/provincias.xml&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">IBAction</span><span class="p">)</span><span class="nf">readXML</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">NSURL</span> <span class="o">*</span><span class="n">url</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="n">sampleXML</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">NSURLRequest</span> <span class="o">*</span><span class="n">request</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURLRequest</span> <span class="nl">requestWithURL:</span><span class="n">url</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">AFXMLRequestOperation</span> <span class="o">*</span><span class="n">operation</span> <span class="o">=</span> <span class="p">[</span><span class="n">AFXMLRequestOperation</span>
+</span><span class='line'>      <span class="nl">XMLParserRequestOperationWithRequest:</span><span class="n">request</span>
+</span><span class='line'>      <span class="nl">success:</span><span class="o">^</span><span class="p">(</span><span class="n">NSURLRequest</span> <span class="o">*</span><span class="n">request</span><span class="p">,</span> <span class="n">NSHTTPURLResponse</span> <span class="o">*</span><span class="n">response</span><span class="p">,</span> <span class="n">NSXMLParser</span> <span class="o">*</span><span class="n">XMLParser</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">XMLParser</span><span class="p">.</span><span class="n">delegate</span> <span class="o">=</span> <span class="n">self</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">[</span><span class="n">XMLParser</span> <span class="n">parse</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">}</span> <span class="nl">failure:</span><span class="nb">nil</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">[</span><span class="n">operation</span> <span class="n">start</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>In this case, success block retrieves a <code>NSXMLParser</code> instead a <code>NSDictionary</code> as before. We need to set delegate to this parser, and after that say to it that start parse process. This is a little more complicated to manage, so pay attention at this part!</p>
+
+<blockquote><p>NSXMLParser uses SAX as parser. Maybe this is a good time to learn how a parser runs, you have more info about SAX on Wikipedia <a href="http://es.wikipedia.org/wiki/Simple_API_for_XML">http://es.wikipedia.org/wiki/Simple_API_for_XML</a>.</p></blockquote>
+
+<h3>3.3.3. Parsing XML</h3>
+
+<p>We saw before XML structure, and we need now convert this structure to our model to manage it. First of all, we need to create model files, and after that, we’ll implement delegate methods for parse process.</p>
+
+<h4>Create model</h4>
+
+<p>Province’s model is very easy, because only contains two NSStrings, one to save URL of flags (we’ll use at last of this chapter), and another to save province’s name.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">@interface</span> <span class="nc">JMProvince</span> : <span class="nc">NSObject</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">copy</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">image</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">copy</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>After that, we need to define interface to community, composed of two NSStrings as provinces (image and name), and one array of provinces as you can see below:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">@interface</span> <span class="nc">JMComunity</span> : <span class="nc">NSObject</span>
+</span><span class='line'>    <span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">copy</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">copy</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">image</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">copy</span><span class="p">)</span> <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">provinces</span><span class="p">;</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+Finally, don’t forget to initialize array of provinces on implementation section as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">@implementation</span> <span class="nc">JMComunity</span>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nf">init</span><span class="p">{</span>
+</span><span class='line'>    <span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="n">init</span><span class="p">];</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">_provinces</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="n">array</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>This simple model will house all data received via XML.</p>
+
+<h4>Implementing delegate methods</h4>
+
+<p>Because we use SAX parser, we need to implement delegate methods that respond each event in parsing process.</p>
+
+<p>First of all, we add some properties to our interface as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">@interface</span> <span class="nc">JMCommunitiesViewController</span> <span class="p">()</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span> <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">comunities</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span> <span class="n">JMComunity</span> <span class="o">*</span><span class="n">tmpComunity</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span> <span class="n">JMProvince</span> <span class="o">*</span><span class="n">tmpProvince</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span> <span class="n">NSMutableString</span> <span class="n">tmpContent</span><span class="p">;</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>And now, write delegate methods as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">parserDidStartDocument:</span><span class="p">(</span><span class="n">NSXMLParser</span> <span class="o">*</span><span class="p">)</span><span class="nv">parser</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">comunities</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="n">array</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">parserDidEndDocument:</span><span class="p">(</span><span class="n">NSXMLParser</span> <span class="o">*</span><span class="p">)</span><span class="nv">parser</span><span class="p">{</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">tableComunities</span> <span class="n">reloadData</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">parser:</span><span class="p">(</span><span class="n">NSXMLParser</span> <span class="o">*</span><span class="p">)</span><span class="nv">parser</span>
+</span><span class='line'>  <span class="nf">didStartElement:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">elementName</span>
+</span><span class='line'>  <span class="nf">namespaceURI:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">namespaceURI</span>
+</span><span class='line'>  <span class="nf">qualifiedName:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">qName</span>
+</span><span class='line'>  <span class="nf">attributes:</span><span class="p">(</span><span class="n">NSDictionary</span> <span class="o">*</span><span class="p">)</span><span class="nv">attributeDict</span><span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">tmpContent</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableString</span> <span class="n">string</span><span class="p">];</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">([</span><span class="n">elementName</span> <span class="nl">isEqualToString:</span><span class="s">@&quot;comunidad&quot;</span><span class="p">]){</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">tmpComunity</span> <span class="o">=</span> <span class="p">[[</span><span class="n">JMComunity</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">tmpComunity</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">attributeDict</span><span class="p">[</span><span class="s">@&quot;name&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">}</span><span class="k">else</span> <span class="k">if</span> <span class="p">([</span><span class="n">elementName</span> <span class="nl">isEqualToString:</span><span class="s">@&quot;provincia&quot;</span><span class="p">]){</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">tmpProvince</span> <span class="o">=</span> <span class="p">[[</span><span class="n">JMProvince</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">parser:</span><span class="p">(</span><span class="n">NSXMLParser</span> <span class="o">*</span><span class="p">)</span><span class="nv">parser</span> <span class="nf">foundCharacters:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">string</span><span class="p">{</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">tmpContent</span> <span class="nl">appendString:</span><span class="n">string</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">parser:</span><span class="p">(</span><span class="n">NSXMLParser</span> <span class="o">*</span><span class="p">)</span><span class="nv">parser</span>
+</span><span class='line'>  <span class="nf">didEndElement:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">elementName</span>
+</span><span class='line'>  <span class="nf">namespaceURI:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">namespaceURI</span>
+</span><span class='line'>  <span class="nf">qualifiedName:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">qName</span><span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">([</span><span class="n">elementName</span> <span class="nl">isEqualToString:</span><span class="s">@&quot;comunidad&quot;</span><span class="p">]){</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">comunities</span> <span class="nl">addObject:</span><span class="n">self</span><span class="p">.</span><span class="n">tmpComunity</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">}</span><span class="k">else</span> <span class="k">if</span> <span class="p">([</span><span class="n">elementName</span> <span class="nl">isEqualToString:</span><span class="s">@&quot;image_comunidad&quot;</span><span class="p">]){</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">tmpComunity</span><span class="p">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">tmpContent</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span><span class="k">else</span> <span class="k">if</span> <span class="p">([</span><span class="n">elementName</span> <span class="nl">isEqualToString:</span><span class="s">@&quot;provincia&quot;</span><span class="p">]){</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">tmpComunity</span><span class="p">.</span><span class="n">provinces</span> <span class="nl">addObject:</span><span class="n">self</span><span class="p">.</span><span class="n">tmpProvince</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">}</span><span class="k">else</span> <span class="k">if</span> <span class="p">([</span><span class="n">elementName</span> <span class="nl">isEqualToString:</span><span class="s">@&quot;name&quot;</span><span class="p">]){</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">tmpProvince</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">tmpContent</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span><span class="k">else</span> <span class="k">if</span> <span class="p">([</span><span class="n">elementName</span> <span class="nl">isEqualToString:</span><span class="s">@&quot;image&quot;</span><span class="p">]){</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">tmpProvince</span><span class="p">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">tmpContent</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>These methods are typical on SAX parser, so basically have followed behavior:</p>
+
+<ul>
+<li><strong>Start document:</strong> it’s used to initialize array of communities.</li>
+<li><strong>Start element:</strong> if is a comunidad, fill name with attribute value. If it’s a provincia, initialize it.</li>
+<li><strong>Found characters:</strong> append characters inside of each element.</li>
+<li><strong>End element:</strong> fill with the content of element, and if is a <em>comunidad</em>, add to the array.</li>
+<li><strong>End document:</strong> when finish of parsing document, reload table with new data.</li>
+</ul>
+
+
+<h4>Load communities in table</h4>
+
+<p>When parse finishes, reload data in the communities table is called. So it’s important implement delegate methods to table delegate and data source as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nf">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span>  <span class="nf">numberOfRowsInSection:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">section</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">comunities</span><span class="p">.</span><span class="n">count</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">UITableViewCell</span> <span class="o">*</span><span class="p">)</span><span class="nf">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">cellForRowAtIndexPath:</span><span class="p">(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span><span class="p">{</span>
+</span><span class='line'>  <span class="err">…</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">JMComunity</span> <span class="o">*</span><span class="n">comunity</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">comunities</span><span class="p">[</span><span class="n">indexPath</span><span class="p">.</span><span class="n">row</span><span class="p">];</span>
+</span><span class='line'>  <span class="n">cell</span><span class="p">.</span><span class="n">textLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">comunity</span><span class="p">.</span><span class="n">name</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">cell</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">didSelectRowAtIndexPath:</span><span class="p">(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span><span class="p">{</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">self</span> <span class="nl">performSegueWithIdentifier:</span><span class="s">@&quot;showProvinces&quot;</span> <span class="nl">sender:</span><span class="nb">nil</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>That’s easy; we only get community from array of communities and fill data in cell, and when user press a cell, we perform segue to show a community detail.</p>
+
+<h4>Load provinces</h4>
+
+<p>Before segue is loaded and detail of a community is showed, we need to load the array of provinces as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">prepareForSegue:</span><span class="p">(</span><span class="n">UIStoryboardSegue</span> <span class="o">*</span><span class="p">)</span><span class="nv">segue</span> <span class="nf">sender:</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nv">sender</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">JMProvincesViewController</span> <span class="o">*</span><span class="n">provincesVC</span> <span class="o">=</span> <span class="p">(</span><span class="n">JMProvincesViewController</span> <span class="o">*</span><span class="p">)</span><span class="n">segue</span><span class="p">.</span><span class="n">destinationViewController</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">NSInteger</span> <span class="n">rowSelected</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">tableComunities</span><span class="p">.</span><span class="n">indexPathForSelectedRow</span><span class="p">.</span><span class="n">row</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">JMComunity</span> <span class="o">*</span><span class="n">comunitySelected</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">comunities</span><span class="p">[</span><span class="n">rowSelected</span><span class="p">];</span>
+</span><span class='line'>  <span class="n">provincesVC</span><span class="p">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">comunitySelected</span><span class="p">.</span><span class="n">name</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">provincesVC</span><span class="p">.</span><span class="n">provinces</span> <span class="o">=</span> <span class="n">comunitySelected</span><span class="p">.</span><span class="n">provinces</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Ultimately, we need to implement table delegates in provinces view controller as follow:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nf">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">numberOfRowsInSection:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">section</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">provinces</span><span class="p">.</span><span class="n">count</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">UITableViewCell</span> <span class="o">*</span><span class="p">)</span><span class="nf">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">cellForRowAtIndexPath:</span><span class="p">(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span><span class="p">{</span>
+</span><span class='line'>  <span class="err">…</span>
+</span><span class='line'>  <span class="n">JMProvince</span> <span class="o">*</span><span class="n">province</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">provinces</span><span class="p">[</span><span class="n">indexPath</span><span class="p">.</span><span class="n">row</span><span class="p">];</span>
+</span><span class='line'>  <span class="n">cell</span><span class="p">.</span><span class="n">textLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">province</span><span class="p">.</span><span class="n">name</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">cell</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>That’s all, run the project and enjoy learning geography!</p>
+
+<p>This sample was a little difficult because XML parsers are hard, but when you understand it, you’ll be able to domain the world! Don’t forget this project, because at last part of the chapter we’ll use it to load flags of each province and each community.</p>
+
+<h2>3.4. JSON</h2>
+
+<p>JSON has become very popular due to file size saving compared with XML. Is for this that all of popular APIs allow to use JSON as data structure.</p>
+
+<p>For understand how <code>AFJSONRequestOperation</code> class works, we will load a simple file that contains color names and hexadecimal value, and we’ll show each text in a table of its color. This file can be found using this URL <a href="http://afnbook.herokuapp.com/colors.json">http://afnbook.herokuapp.com/colors.json</a>.</p>
+
+<h3>3.4.1. Squeleton of Colors</h3>
+
+<p>First of all we create a single view application, and using Cocoa Pods to install <code>AFNetworking</code> and <code>EDColor</code> that will help us to manage colors in our applications. For that purpouse we need a Podfile like the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="n">platform</span> <span class="o">:</span><span class="n">ios</span><span class="p">,</span> <span class="err">&#39;</span><span class="mf">6.0</span><span class="err">&#39;</span>
+</span><span class='line'><span class="n">pod</span> <span class="err">&#39;</span><span class="n">AFNetworking</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="mf">1.0</span><span class="err">&#39;</span>
+</span><span class='line'><span class="n">pod</span> <span class="err">&#39;</span><span class="n">EDColor</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="mf">0.2</span><span class="err">&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>As usual, run pod install and open workspace instead of project file from now.</p>
+
+<p>Now, add a tableview to our view controller and connect it with an IBOutlet. Set the <strong>delegate</strong> and <strong>datasource</strong> to this class, and add a property of type NSArray that save all our colors as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">@interface</span> <span class="nc">JMViewController</span> <span class="p">()</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UITableView</span> <span class="o">*</span><span class="n">tableColors</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSArray</span> <span class="o">*</span><span class="n">colors</span><span class="p">;</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>After that, we’ll create operation to do request, in this case using a specific subclass for JSON as you can see bellow:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">colorsURL</span> <span class="o">=</span> <span class="s">@&quot;http://afnbook.herokuapp.com/colors.json&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">viewDidLoad</span><span class="p">{</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">super</span> <span class="n">viewDidLoad</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">NSURL</span> <span class="o">*</span><span class="n">url</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="n">colorsURL</span><span class="p">];</span>
+</span><span class='line'>  <span class="n">NSURLRequest</span> <span class="o">*</span><span class="n">request</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURLRequest</span> <span class="nl">requestWithURL:</span><span class="n">url</span><span class="p">];</span>
+</span><span class='line'>  <span class="n">AFJSONRequestOperation</span> <span class="o">*</span><span class="n">operation</span> <span class="o">=</span> <span class="p">[</span><span class="n">AFJSONRequestOperation</span>
+</span><span class='line'>      <span class="nl">JSONRequestOperationWithRequest:</span><span class="n">request</span>
+</span><span class='line'>      <span class="nl">success:</span><span class="o">^</span><span class="p">(</span><span class="n">NSURLRequest</span> <span class="o">*</span><span class="n">request</span><span class="p">,</span> <span class="n">NSHTTPURLResponse</span> <span class="o">*</span><span class="n">response</span><span class="p">,</span> <span class="kt">id</span> <span class="n">JSON</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">self</span><span class="p">.</span><span class="n">colors</span> <span class="o">=</span> <span class="p">((</span><span class="n">NSDictionary</span> <span class="o">*</span><span class="p">)</span><span class="n">JSON</span><span class="p">)[</span><span class="s">@&quot;colorsArray&quot;</span><span class="p">];</span>
+</span><span class='line'>          <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">tableColors</span> <span class="n">reloadData</span><span class="p">];</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="nl">failure:</span><span class="o">^</span><span class="p">(</span><span class="n">NSURLRequest</span> <span class="o">*</span><span class="n">request</span><span class="p">,</span> <span class="n">NSHTTPURLResponse</span> <span class="o">*</span><span class="n">response</span><span class="p">,</span> <span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">,</span> <span class="kt">id</span> <span class="n">JSON</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;%@&quot;</span><span class="p">,</span> <span class="n">error</span><span class="p">.</span><span class="n">localizedDescription</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}];</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">operation</span> <span class="n">start</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Thanks to AFNetworking, manage a JSON response is a kids play because it returns a NSDictionary with values, so we only need to get array of color codes, an save it on our property. After that, we call to reload data method that need delegate methods implementation as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="cp">#pragma mark - Table Delegates  </span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nf">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">numberOfRowsInSection:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">section</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">colors</span><span class="p">.</span><span class="n">count</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">UITableViewCell</span> <span class="o">*</span><span class="p">)</span><span class="nf">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">cellForRowAtIndexPath:</span><span class="p">(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span><span class="p">{</span>
+</span><span class='line'>  <span class="err">…</span>
+</span><span class='line'>  <span class="n">cell</span><span class="p">.</span><span class="n">textLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">colors</span><span class="p">[</span><span class="n">indexPath</span><span class="p">.</span><span class="n">row</span><span class="p">][</span><span class="s">@&quot;colorName&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="n">cell</span><span class="p">.</span><span class="n">textLabel</span><span class="p">.</span><span class="n">textColor</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIColor</span> <span class="nl">colorWithHexString:</span><span class="n">self</span><span class="p">.</span><span class="n">colors</span><span class="p">[</span><span class="n">indexPath</span><span class="p">.</span><span class="n">row</span><span class="p">][</span><span class="s">@&quot;hexValue&quot;</span><span class="p">]];</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">cell</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>As you saw, you only need to use key values as is usual, and using EDColor category, turn in NSString to UIColors.
+If you run the application now, you’ll see any like image bellow, magical!</p>
+
+<p><img src="assets/8591_03_05.png" alt="Colors loaded in the application" /></p>
+
+<h2>3.5. Loading images asynchronously</h2>
+
+<p>One of the most useful categories that I know on Objective-C is included on AFNetworking. This is used to load images on UIImageView asynchronously without worrying about hard delegates and allowing set a placeholder to show while full image is loaded.</p>
+
+<p>Open Communities XML project, and we’ll extend it loading each flag of province or community. You only need to include category on the header of your view controllers as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="cp">#import &quot;UIImageView+AFNetworking.h&quot;  </span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>After that, it’s easy call to the method <code>setImageWithURL:placeholderImage:</code> which is included in this category.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="c1">// Community view controller  </span>
+</span><span class='line'><span class="p">[</span><span class="n">cell</span><span class="p">.</span><span class="n">imageView</span>
+</span><span class='line'>  <span class="nl">setImageWithURL:</span><span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="n">comunity</span><span class="p">.</span><span class="n">image</span><span class="p">]</span>
+</span><span class='line'>  <span class="nl">placeholderImage:</span><span class="p">[</span><span class="n">UIImage</span> <span class="nl">imageNamed:</span><span class="s">@&quot;placeholder.png&quot;</span><span class="p">]</span>
+</span><span class='line'><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Province view controller  </span>
+</span><span class='line'><span class="p">[</span><span class="n">cell</span><span class="p">.</span><span class="n">imageView</span>
+</span><span class='line'>  <span class="nl">setImageWithURL:</span><span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="n">province</span><span class="p">.</span><span class="n">image</span><span class="p">]</span>
+</span><span class='line'>  <span class="nl">placeholderImage:</span><span class="p">[</span><span class="n">UIImage</span> <span class="nl">imageNamed:</span><span class="s">@&quot;placeholder.png&quot;</span><span class="p">]</span>
+</span><span class='line'><span class="p">];</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<blockquote><p>You can use placeholder.png image that is included in source of this book.</p></blockquote>
+
+<p>Run the application, and enjoy how are loading images in each cell of the tables as image bellow.</p>
+
+<p><img src="assets/8591_03_04.png" alt="Provinces in a community with their images loaded" /></p>
+
+<h2>3.6. Summary</h2>
+
+<p>Here we’ve learned how to manage different structured data, from simplest property list to a complex XML, passing through thin JSON which is very popular between today’s APIs.</p>
+
+<p>As final gift, we used UIImageView category included in AFNetworking framework and helps in hard task of download and manage load image in UIImageViews, doing that asynchronously without having us to worry about anything.</p>
+
+<p>On the next chapter, we’ll employ these knowledge to consume a real world API and understand the amount of applications that we can make from these.</p>
+
+  
+    <footer>
+      
+      
+        <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://AFNBook.github.io/3-data-consumption.html" data-via="" data-counturl="http://AFNBook.github.io/3-data-consumption.html" >Tweet</a>
+  
+  
+  
+</div>
+
+      
+    </footer>
+  
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Download Book</h1>
+<ul id="recent_posts">
+	<li class="post"><a href="http://d.pr/f/qvzU">Kindle version (.mobi)</a></li>
+	<li class="post"><a href="http://d.pr/f/DMSx">e-reader version (.epub)</a></li>
+</ul>
+</section>
+
+
+<section>
+<h1>Book index</h1>
+<ul id="recent_posts">
+<li class="post">
+<a href="/0-disclaimer.html">AFNetworking from zero: Disclaimer</a>
+</li>
+
+<li class="post">
+<a href="/1-install-setup.html">1. Installing and Setting up the Project</a>
+</li>
+
+<li class="post">
+<a href="/2-first-contact.html">2. First contact with AFNetworking: Read a simple web</a>
+</li>
+
+<li class="post">
+<a href="/3-data-consumption.html">3. Standard data consumption</a>
+</li>
+
+<li class="post">
+<a href="/4-apis.html">4. API’s world</a>
+</li>
+
+<li class="post">
+<a href="/5-scrapping.html">5. Scrapping the web</a>
+</li>
+
+<li class="post">
+<a href="/6-migrate-asihttprequest.html">6. Migrate from ASIHTTPRequest</a>
+</li>
+</ul>
+</section>
+  
+</aside>
+
+
+      </div>
+    </div>
+    <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Jorge Maroto -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a>. Design by <a href="http://octopressthemes.com">Octopress Themes</a></span>
+</p>
+
+</footer>
+    
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+  </div>
+</body>
+</html>

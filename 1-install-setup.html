@@ -1,0 +1,313 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>1. Installing and Setting up the Project - AFNBook experiment</title>
+  <meta name="author" content="Jorge Maroto">
+
+  
+  <meta name="description" content="1. Installing and Setting Up the Project As you know, AFNetworking is a library that helps you in the laborious task of managing connections and &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://AFNBook.github.io/1-install-setup.html">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="AFNBook experiment" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=Arvo:400,400italic,700,700italic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=Playball" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body>
+  <header role="banner"><hgroup>
+  <h1><a href="/">AFNBook experiment</a></h1>
+  
+    <h2>A blog that is a book.</h2>
+  
+</hgroup>
+
+</header>
+  <div id="navigation">
+    <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:AFNBook.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/0-disclaimer.html">Book</a></li>
+	<li class="post"><a href="http://d.pr/f/qvzU">Download Kindle version (.mobi)</a></li>
+	<li class="post"><a href="http://d.pr/f/DMSx">Download e-reader version (.epub)</a></li>
+</ul>
+</nav>
+  </div>
+  <div id="body"  >
+    <div id="main">
+      <div id="content">
+        <div>
+<article role="article">
+  
+  <header>
+    <h1 class="entry-title">1. Installing and Setting Up the Project</h1>
+    
+  </header>
+  
+  <p>As you know, <strong>AFNetworking</strong> is a library that helps you in the laborious task of managing connections and requests from your applications. This chapter explains how to include and set it up in an iOS project.</p>
+
+<p>The first step that you need to know is how to include the library, which could be done by three different ways as follows:</p>
+
+<ul>
+<li>Download and copy the source.</li>
+<li>Submodule git.</li>
+<li>Cocoa Pods.</li>
+</ul>
+
+
+<p>We will be looking at these in this chapter.</p>
+
+<p>The first method is good in order to practice with the library, but it’s better to use the second or third way to be updated with AFNetworking project, which is changing and improving every day.</p>
+
+<h2>1.1. Where can I buy AFNetworking framework?</h2>
+
+<p>AFNetworking is hosted in <strong>GitHub</strong>, an online project hosting based on <strong>git SCM</strong> (Source Code Management).</p>
+
+<p>If you didn’t know GitHub, believe me, you’ll love it. Why? A lot of developers are sharing their projects here so you can browse their sources (that’s the best part) totally free!</p>
+
+<p>To get AFNetworking framework, you can go to GitHub’s project page <a href="https://github.com/AFNetworking/AFNetworking">https://github.com/AFNetworking/AFNetworking</a> and download it directly from here (see image).</p>
+
+<p><img src="assets/8591_01_01.png" alt="AFNetworking GitHub page" /></p>
+
+<p>You also could fork the project to your GitHub account, but that is out of scope of this book, so if you are interested in I suggest that you search a specialized git book and learn to use it because it’s very useful for develop both alone and when you work with others.</p>
+
+<h2>1.2. Installing from the source</h2>
+
+<p>At the top of GitHub you will see a <code>ZIP</code> button, clicking it you’ll obtain last release of AFNetworking’s source compressed in a <code>.zip</code> file (you can download it from <a href="https://github.com/AFNetworking/AFNetworking/archive/master.zip">https://github.com/AFNetworking/AFNetworking/archive/master.zip</a> directly). You&rsquo;ll need to double click on it to uncompress.</p>
+
+<p>The folder that you will have obtained has the following structure:</p>
+
+<ul>
+<li>AFNetworking folder.</li>
+<li><em>AFNetworking.xcworkspace</em> file.</li>
+<li>Example folder.</li>
+<li>Some other files which aren’t interesting at the moment.</li>
+</ul>
+
+
+<p>If you are an early adopter, you can open <em>AFNetworking.xcworkspace</em>, and you’ll see two application examples, one for OS X and another for iOS. Feel free to try each one, but the rest of this book will focus on iOS version, and when you have played enough with the examples, we go to include AFNetworking in our project.</p>
+
+<p>For this, you need to create a new project (or use your current project), and drop AFNetworking subfolder to XCode Project Navigator (circled area on image below). When a dialog appears, don’t forget to choose <code>Copy items</code> to put the files inside your project as you can see pointed with the arrow as follows:</p>
+
+<p><img src="assets/8591_01_02.png" alt="Adding AFNetworking to XCode" /></p>
+
+<p>If you try to run it at this moment, you’ll receive a warning from the compiler. This is because you need to add some SDK frameworks to your project before continuing, so here we go!</p>
+
+<h3>1.2.1. Adding the required frameworks</h3>
+
+<p>On the Project Navigator, click on your project file (1 on the image) and choosing summary tab scroll to <code>Linked Frameworks and Libraries</code> section, where you need to click on plus to add <em>MobileCoreServices.framework</em> and <em>SystemConfiguration.framework</em> from the list that will appear.</p>
+
+<p><img src="assets/8591_01_03.png" alt="Adding required frameworks" /></p>
+
+<p>Only one more thing, you need to add both frameworks to precompiled headers, so in the Project Navigator look for a file with <code>.pch</code> extension and open it (usually it’s under a <code>Supporting Files</code> folder). You need to add two lines between <code>#ifdef macro</code>. Final result should be anything like the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="cp">#ifdef __OBJC__</span>
+</span><span class='line'>    <span class="err">#</span><span class="n">import</span> <span class="o">&lt;</span><span class="n">UIKit</span><span class="o">/</span><span class="n">UIKit</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="err">#</span><span class="n">import</span> <span class="o">&lt;</span><span class="n">Foundation</span><span class="o">/</span><span class="n">Foundation</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="err">#</span><span class="n">import</span> <span class="o">&lt;</span><span class="n">SystemConfiguration</span><span class="o">/</span><span class="n">SystemConfiguration</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="err">#</span><span class="n">import</span> <span class="o">&lt;</span><span class="n">MobileCoreServices</span><span class="o">/</span><span class="n">MobileCoreServices</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;</span>
+</span><span class='line'><span class="cp">#endif</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>That’s all! You can run it now, and if all was ok you should have a white screen in front of you. Don’t worry, in the chapter 2 we’ll add some functionality to your killer-app :).</p>
+
+<h2>1.3. Include AFNetworking as git submodule</h2>
+
+<p>One of the advantages of using GitHub instead of hosting your files on a common web is that you’ll be notified of updates on real-time. That means that any feature, which is added by the library’s author, could be downloaded just at this moment. Awesome, isn’t it?</p>
+
+<p>Using the first way to include AFNetworking in your project (downloading a static <code>.zip</code> file) will make you lose this functionality, so in this subsection we’ll learn how to include full git repo on our project and how to continue receiving new features when AFN’s contributors update it.</p>
+
+<p>In the first place, we’ll need to have installed git on our system. The easiest way is using Components Download Dialog on XCode, so we can go to <code>XCode Menu | Preferences | Downloads</code> and choose Download the <code>Command Line Tools</code>.</p>
+
+<p>Once installed, you can go to your project’s folder and clone git repo executing:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="n">git</span> <span class="n">submodule</span> <span class="n">add</span> <span class="n">git</span><span class="err">@</span><span class="n">github</span><span class="p">.</span><span class="nl">com:</span><span class="n">AFNetworking</span><span class="o">/</span><span class="n">AFNetworking</span><span class="p">.</span><span class="n">git</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now you can see a new folder <em>AFNetworking</em> in root project folder, that’s the last commit on AFNetworking’s repo.</p>
+
+<p><img src="assets/8591_01_04.png" alt="Adding AFNetworking as git submodule to your project" /></p>
+
+<p>Now, you can follow the same process that you learned in the first section of this chapter, installing from the source with these files. The only thing that you need to be aware of is deselecting <code>Copy Items</code> check on the dialog, because you already have these files in your project folder.</p>
+
+<blockquote><p>AFNetworking project includes some examples that aren&rsquo;t required in our project, so you only need include folder with framework’s classes inside of this.</p></blockquote>
+
+<p>Easy, isn’t it? Now we’ll see an even simpler method for adding AFNetworking to a project.</p>
+
+<h2>1.4. Installing with Cocoa Pods</h2>
+
+<p>Cocoa Pods is a library managed for XCode, like an <code>apt-get</code> for installing libraries from command line. You can find more info on their website: <a href="http://cocoapods.org/">http://cocoapods.org/</a>.</p>
+
+<h3>1.4.1. Installing Cocoa Pods gem</h3>
+
+<p>Cocoa Pods is distributed as Ruby gem, so to install it, open a Terminal and write:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sudo gem install
+</span><span class='line'>pod setup
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once installed you can execute several commands from command-line, more info about that on the following website: <a href="http://cocoapods.org/">http://cocoapods.org/</a>.</p>
+
+<h3>1.4.2. Adding AFNetworking to the project</h3>
+
+<p>Each project that uses Cocoa Pods needs to create a <em>Podfile</em> file with specifications about packages used in the project. In our case we’ll create a Podfile (using <em>vim</em> editor for example) with the following content:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>platform :ios, <span class="s1">&#39;6.0&#39;</span>
+</span><span class='line'>pod <span class="s1">&#39;AFNetworking&#39;</span>, <span class="s1">&#39;1.0&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>From this moment, you change from open <em>&lt;your_project&gt;.xcodeproj</em> file to <em>&lt;your_project&gt;.xcworkspace</em>, and you’ll see that a project named Pods was included on this workspace which does all the magic: you can forget to download manually third party libraries, Cocoa Pods will do this for you!</p>
+
+<blockquote><p>It’s necessary to include iOS version > 4.3 because AFN doesn’t support lower versions.</p></blockquote>
+
+<h2>1.5 Summary</h2>
+
+<p>In this chapter we learned how to include AFNetworking in our project using three different ways from the easiest to the most powerful. Last method i.e. using Cocoa Pods is very interesting to include and maintain updated third parties libraries on our projects with little effort.</p>
+
+<p>In the next chapter we’ll make a ‘Hello world’ app (with this name is known the easiest app that you can make in a specific language), which will consist in to read a simple file from Internet and show it on screen.</p>
+
+  
+    <footer>
+      
+      
+        <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://AFNBook.github.io/1-install-setup.html" data-via="" data-counturl="http://AFNBook.github.io/1-install-setup.html" >Tweet</a>
+  
+  
+  
+</div>
+
+      
+    </footer>
+  
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Download Book</h1>
+<ul id="recent_posts">
+	<li class="post"><a href="http://d.pr/f/qvzU">Kindle version (.mobi)</a></li>
+	<li class="post"><a href="http://d.pr/f/DMSx">e-reader version (.epub)</a></li>
+</ul>
+</section>
+
+
+<section>
+<h1>Book index</h1>
+<ul id="recent_posts">
+<li class="post">
+<a href="/0-disclaimer.html">AFNetworking from zero: Disclaimer</a>
+</li>
+
+<li class="post">
+<a href="/1-install-setup.html">1. Installing and Setting up the Project</a>
+</li>
+
+<li class="post">
+<a href="/2-first-contact.html">2. First contact with AFNetworking: Read a simple web</a>
+</li>
+
+<li class="post">
+<a href="/3-data-consumption.html">3. Standard data consumption</a>
+</li>
+
+<li class="post">
+<a href="/4-apis.html">4. API’s world</a>
+</li>
+
+<li class="post">
+<a href="/5-scrapping.html">5. Scrapping the web</a>
+</li>
+
+<li class="post">
+<a href="/6-migrate-asihttprequest.html">6. Migrate from ASIHTTPRequest</a>
+</li>
+</ul>
+</section>
+  
+</aside>
+
+
+      </div>
+    </div>
+    <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Jorge Maroto -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a>. Design by <a href="http://octopressthemes.com">Octopress Themes</a></span>
+</p>
+
+</footer>
+    
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+  </div>
+</body>
+</html>

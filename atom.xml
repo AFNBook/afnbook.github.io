@@ -4,7 +4,7 @@
   <title><![CDATA[AFNBook experiment]]></title>
   <link href="http://AFNBook.github.io/atom.xml" rel="self"/>
   <link href="http://AFNBook.github.io/"/>
-  <updated>2013-09-11T08:58:00+02:00</updated>
+  <updated>2013-09-12T19:10:21+02:00</updated>
   <id>http://AFNBook.github.io/</id>
   <author>
     <name><![CDATA[Jorge Maroto]]></name>
@@ -12,5 +12,16 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Giving a little soul]]></title>
+    <link href="http://AFNBook.github.io/2013/09/12/giving-a-little-soul/"/>
+    <updated>2013-09-12T00:00:00+02:00</updated>
+    <id>http://AFNBook.github.io/2013/09/12/giving-a-little-soul</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve finally put some order in the web version of this book, with the help of <a href="http://octopress.org/">Octopress</a> &amp; <a href="http://octopressthemes.com/">Octopress themes</a>, so from now I hope to invest my work to improve the content of the book itself.</p>
+
+<p>If you do not know what this is, I advise you to read the <a href="http://AFNBook.github.io/0-disclaimer.html"><strong>disclaimer</strong></a> and do not forget you can collaborate through <a href="https://github.com/patoroco/AFNBook"><strong>github</strong></a> and download the book in its versions in <a href="http://d.pr/f/DMSx"><strong>.epub</strong></a> and <a href="http://d.pr/f/qvzU"><strong>.mobi</strong></a> to your favorite reader.</p>
+]]></content>
+  </entry>
   
 </feed>

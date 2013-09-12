@@ -1,0 +1,675 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>5. Scrapping the web - AFNBook experiment</title>
+  <meta name="author" content="Jorge Maroto">
+
+  
+  <meta name="description" content="5. Scrapping the Web In the last chapter you learned how to use information of some webpages, which give you an API to consume this easily. That’s &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://AFNBook.github.io/5-scrapping.html">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="AFNBook experiment" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=Arvo:400,400italic,700,700italic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=Playball" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body>
+  <header role="banner"><hgroup>
+  <h1><a href="/">AFNBook experiment</a></h1>
+  
+    <h2>A blog that is a book.</h2>
+  
+</hgroup>
+
+</header>
+  <div id="navigation">
+    <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:AFNBook.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+	<li><a href="/">Blog</a></li>
+	<li><a href="/0-disclaimer.html">Book</a></li>
+	<li class="post"><a href="http://d.pr/f/qvzU">Download Kindle version (.mobi)</a></li>
+	<li class="post"><a href="http://d.pr/f/DMSx">Download e-reader version (.epub)</a></li>
+</ul>
+</nav>
+  </div>
+  <div id="body"  >
+    <div id="main">
+      <div id="content">
+        <div>
+<article role="article">
+  
+  <header>
+    <h1 class="entry-title">5. Scrapping the Web</h1>
+    
+  </header>
+  
+  <p>In the last chapter you learned how to use information of some webpages, which give you an API to consume this easily. That’s really nice, but maybe you want to use information from specific website, but it doesn’t have a public API.</p>
+
+<p>This chapter will explain how to catch information from any website (this technique is named <em>scrapping</em>) to use in your app, maybe to complete some services that you are paying, or simply to create a front-end for a no-mobile web which will be easy of use on a mobile device.</p>
+
+<p>We’ll develop an application to show how much longer are different bus lines using information that company publishes on his website, but which are difficult to understand using an iPhone for example.</p>
+
+<h2>5.1 Develop applications != create yourself content</h2>
+
+<p>Until last chapter, you might have thought that all information showed in an application should be created and maintained by app creator, but that’s not all true.</p>
+
+<p>If you are familiar with blogs, you should know a standard very linked with it, named RSS (<em>Really Simple Syndication</em>), which is a subset of XML. Mainly these files can be accessed from a browser, but the main advantage of RSS is to be included in a feeds reader, where you’ll be notified when one of your favorite blogs has been updated without being visiting one by one all these favorite blogs.</p>
+
+<p>RSS is a good example of how you can include information from several parts in your application, and really you can do that with your current knowledge (remember that RSS is a XML file, and you can read different parts using AFNetworking subclass for XML).</p>
+
+<p>That’s chapter goes beyond, and we’ll try to use information contented in a real-website, reading his HTML source, which usually is not well formed from the standpoint of XML. To understand how it works, we’ll do an example of web scrapping and we’ll show information on an iOS application.</p>
+
+<h2>5.2 What is our target?</h2>
+
+<p>Some bus companies have screens on bus stops to show how long until the next bus arrives, would not it be interesting to check this time from your house instead on wait on bus stop? Fortunately some companies publish these times on their websites, so go ahead and make an application to help users in their life!</p>
+
+<p>In this case we’ll use AUVASA (Valladolid, Spain) webpage to get time information, but I invite you to do the same with your city company and share with us!</p>
+
+<p>Ok, go with your browser to <a href="http://www.auvasa.es/">http://www.auvasa.es/</a>, and you can see a form on the middle of the page to enter a line number, for example 871.</p>
+
+<p>When you hit enter, you will be redirect to <a href="http://www.auvasa.es/parada.asp?codigo=871">http://www.auvasa.es/parada.asp?codigo=871</a>, you can see that URL is of the form <a href="http://www.auvasa.es/parada.asp?codigo=&amp;lt;stop_number&amp;gt;">http://www.auvasa.es/parada.asp?codigo=&lt;stop_number&gt;</a>, that’s important to the rest of the application, so we’ll define URL as a constant after.</p>
+
+<h3>5.2.1 Navigate in the structure</h3>
+
+<p>When you visit this page, you can see a map on the left to represent where is the stop, and how far to the next bus on the right. We’ll catch these information form our application to show it friendlier on our application.</p>
+
+<p>First of all, I recommend to inspect how is built the website, because after we’ll use a parser to catch these information (and no more), so we need to specify ‘queries’ to the parser. Exist several tools for to do that (Safari Inspector, Firebug for Firefox…), but I like Google Chrome, so we’ll use his web inspector here.</p>
+
+<p>On Google Chrome, you can go to menu View <code>| Developer | Developer</code> Tools or press <code>Cmd + Alt + I</code>, and you should see any similar to image below.</p>
+
+<p><img src="assets/8591_05_01.png" alt="Google Chrome Inspector to see structure document" /></p>
+
+<p>If you press on lens icon at the bottom of Chrome, and after select specific website area (this will be grayed, as point 1), you’ll see HTML code which it is (point 2). Point 3 notes HTML hierarchy composed by class and ids, as like different elements which embedded current element.</p>
+
+<p>This notation should be familiar to you if you were working with jQuery or CSS for example, if not, take patience to understand which one is inside of which other.</p>
+
+<p>In this case, you can see that important information is inside of a <code>div</code> with id <code>sidebartiempos</code>, and after that, each line is a different table with class <code>style36</code> that contents three td, first correspond to line number, second is the name and third is the time until bus arrives.</p>
+
+<p>In conclusion, we’ll do queries about #sidebartiempos table.style36 and iterate over td contented in each one to catch different values.</p>
+
+<p>Also we’ll catch coordinates from Google Maps to include a map in our application. For that we’ll search different <code>&lt;script&gt;</code> in the source code, and using regular expressions will find longitude and latitude. Don’t worry if this confuses you at this moment, that’s easier when you code with it.</p>
+
+<h2>5.3 Skeleton of our application</h2>
+
+<p>At this time, we’ll work with a single view application compounds by a mapview and a table view, as well as an stepper which will enable us to change between bus stops. Final view should be similar to image below.</p>
+
+<p><img src="assets/8591_05_02.png" alt="Storyboard of single view application" /></p>
+
+<p>Don’t forget to connect these components with IBOutlets, and define another NSArray property to store arrivals (we will create this class after) as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="cp">#define uBUS @”http:</span><span class="c1">//www.auvasa.es/parada.asp”  </span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@interface</span> <span class="nc">JMViewController</span> <span class="p">(){</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">lineNumber</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">MKMapView</span> <span class="o">*</span><span class="n">map</span><span class="p">;</span>
+</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UITableView</span> <span class="o">*</span><span class="n">table</span><span class="p">;</span>
+</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UIStepper</span> <span class="o">*</span><span class="n">stepper</span><span class="p">;</span>
+</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">)</span> <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">arrivals</span><span class="p">;</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>You can see a variable named lineNumber that will store which line is selected, to show information about it on screen.</p>
+
+<h3>5.3.1 Podfile</h3>
+
+<p>As is usual, we’ll use Cocoa Pods to install third party libraries, and in this case we need to include on Podfile ElementParser and MKMapViewZoom besides AFNetworking as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">platform :ios, &#39;6.0&#39;</span>
+</span><span class='line'><span class="l-Scalar-Plain">pod &#39;AFNetworking&#39;, &#39;1.0&#39;</span>
+</span><span class='line'><span class="l-Scalar-Plain">pod &#39;ElementParser&#39;, &#39;0.0.1&#39;</span>
+</span><span class='line'><span class="l-Scalar-Plain">pod &#39;MKMapViewZoom&#39;, &#39;1.0&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p><strong>ElementParser</strong> (<a href="http://touchtank.wordpress.com/element-parser/">http://touchtank.wordpress.com/element-parser/</a>) is the parser which we’ll use. I choose this one because it supports queries using CSS identifiers, and it doesn’t require a well-formed XML, so it’s perfect to parse real-world websites, because other parsers crash when XML is not perfectly formed.</p>
+
+<p><strong>MKMapViewZoom</strong> (<a href="http://troybrant.net/blog/2010/01/set-the-zoom-level-of-an-mkmapview/">http://troybrant.net/blog/2010/01/set-the-zoom-level-of-an-mkmapview/</a>) is a helper to manage zoom level similarly as Google does instead of change manually viewport region.</p>
+
+<p>After edit Podfile, don’t forget to execute pod install and open workspace instead of XCode project.</p>
+
+<h3>5.3.2 Load HTML</h3>
+
+<p>First of all we need to make a request to get HTML source from AUVASA website, so as you learned in past chapters, create URL string append lineNumber to base path, and create an AFHTTPRequestOperation. When it successes, be careful when you convert to a NSString, because at this time codification is different (you can see which one it is using Chrome), so instead of use <code>UTF8</code> encoding, use <code>NSASCIIStringEncoding</code> as follows.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">loadBusLine:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="nv">line</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">lineNumber</span> <span class="o">=</span> <span class="n">line</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">NSString</span> <span class="o">*</span><span class="n">urlLine</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nl">stringWithFormat:</span><span class="s">@&quot;%@?codigo=%i&quot;</span><span class="p">,</span><span class="n">uBUS</span><span class="p">,</span> <span class="n">lineNumber</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">NSURL</span> <span class="o">*</span><span class="n">url</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURL</span> <span class="nl">URLWithString:</span><span class="n">urlLine</span><span class="p">];</span>
+</span><span class='line'>  <span class="n">NSURLRequest</span> <span class="o">*</span><span class="n">req</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURLRequest</span> <span class="nl">requestWithURL:</span><span class="n">url</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">AFHTTPRequestOperation</span> <span class="o">*</span><span class="n">op</span> <span class="o">=</span> <span class="p">[[</span><span class="n">AFHTTPRequestOperation</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithRequest:</span><span class="n">req</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">[</span><span class="n">op</span>
+</span><span class='line'>      <span class="nl">setCompletionBlockWithSuccess:</span><span class="o">^</span><span class="p">(</span><span class="n">AFHTTPRequestOperation</span> <span class="o">*</span><span class="n">operation</span><span class="p">,</span> <span class="kt">id</span> <span class="n">responseObject</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">NSString</span> <span class="o">*</span><span class="n">html</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSString</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithData:</span><span class="n">operation</span><span class="p">.</span><span class="n">responseData</span> <span class="nl">encoding:</span><span class="n">NSASCIIStringEncoding</span><span class="p">];</span>
+</span><span class='line'>          <span class="p">[</span><span class="n">self</span> <span class="nl">parse:</span><span class="n">html</span> <span class="nl">line:</span><span class="n">lineNumber</span><span class="p">];</span>
+</span><span class='line'>      <span class="p">}</span> <span class="nl">failure:</span><span class="o">^</span><span class="p">(</span><span class="n">AFHTTPRequestOperation</span> <span class="o">*</span><span class="n">operation</span><span class="p">,</span> <span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;ERROR: %@&quot;</span><span class="p">,</span> <span class="n">error</span><span class="p">.</span><span class="n">localizedDescription</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">[</span><span class="n">op</span> <span class="n">start</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>To make code more readable, I send HTML string to another method which will get necessary information and manage it to load on the table.</p>
+
+<h3>5.3.3 Scrapping time schedule</h3>
+
+<p>First of all, we need to create a specific class to store required information about arrivals. This will be simply a set of properties (line, name and time) that will be stored inside of an array as after.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">@interface</span> <span class="nc">JMArrival</span> : <span class="nc">NSObject</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">line</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">name</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">time</span><span class="p">;</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Parse method will use Element Parser library to find important information using ‘jQuery notation’ as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">parse:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">html</span> <span class="nf">line:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="nv">line</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">arrivals</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="n">array</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">DocumentRoot</span> <span class="o">*</span><span class="n">document</span> <span class="o">=</span> <span class="p">[</span><span class="n">Element</span> <span class="nl">parseHTML:</span><span class="n">html</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">NSArray</span> <span class="o">*</span><span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">document</span> <span class="nl">selectElements:</span><span class="s">@&quot;#sidebartiempos table.style36&quot;</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="n">Element</span> <span class="o">*</span><span class="n">element</span> <span class="k">in</span> <span class="n">elements</span><span class="p">){</span>
+</span><span class='line'>      <span class="n">NSArray</span> <span class="o">*</span><span class="n">busElements</span> <span class="o">=</span> <span class="p">[</span><span class="n">element</span> <span class="nl">selectElements:</span><span class="s">@&quot;td&quot;</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">JMArrival</span> <span class="o">*</span><span class="n">arrivalTmp</span> <span class="o">=</span> <span class="p">[[</span><span class="n">JMArrival</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+</span><span class='line'>      <span class="n">arrivalTmp</span><span class="p">.</span><span class="n">line</span> <span class="o">=</span> <span class="p">((</span><span class="n">Element</span> <span class="o">*</span><span class="p">)</span><span class="n">busElements</span><span class="p">[</span><span class="mi">0</span><span class="p">]).</span><span class="n">contentsText</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">arrivalTmp</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="p">((</span><span class="n">Element</span> <span class="o">*</span><span class="p">)</span><span class="n">busElements</span><span class="p">[</span><span class="mi">1</span><span class="p">]).</span><span class="n">contentsText</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">arrivalTmp</span><span class="p">.</span><span class="n">time</span> <span class="o">=</span> <span class="p">((</span><span class="n">Element</span> <span class="o">*</span><span class="p">)</span><span class="n">busElements</span><span class="p">[</span><span class="mi">2</span><span class="p">]).</span><span class="n">contentsText</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">arrivals</span> <span class="nl">addObject:</span><span class="n">arrivalTmp</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">table</span> <span class="n">reloadData</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>First of all we’ve created a <code>DocumentRoot</code> which store all <code>DOM</code> of our <code>HTML</code> file. After, we make a query to search all table elements with class style36 and that are contained on an element with id <code>sidebartiempos</code>. We iterate each result looking for td elements (corresponds with each column on the table), and set first element to line number, second element with line name and third with time until arrive of these line.</p>
+
+<p>Remember that these routes were founded using Chrome Inspector, so feel free to choose another one in your ‘scrapping project’.</p>
+
+<p>Finally we need to set up table delegate methods as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="cp">#pragma mark - Table Delegates  </span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nf">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">numberOfRowsInSection:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">section</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">arrivals</span><span class="p">.</span><span class="n">count</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">UITableViewCell</span> <span class="o">*</span><span class="p">)</span><span class="nf">tableView:</span><span class="p">(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">cellForRowAtIndexPath:</span><span class="p">(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">CellIdentifier</span> <span class="o">=</span> <span class="s">@&quot;Identifier&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">UITableViewCell</span> <span class="o">*</span><span class="n">cell</span> <span class="o">=</span> <span class="p">[</span><span class="n">tableView</span> <span class="nl">dequeueReusableCellWithIdentifier:</span><span class="n">CellIdentifier</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">cell</span><span class="p">){</span>
+</span><span class='line'>      <span class="n">cell</span> <span class="o">=</span> <span class="p">[[</span><span class="n">UITableViewCell</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithStyle:</span><span class="n">UITableViewCellStyleSubtitle</span> <span class="nl">reuseIdentifier:</span><span class="n">CellIdentifier</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">JMArrival</span> <span class="o">*</span><span class="n">arrival</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">arrivals</span><span class="p">[</span><span class="n">indexPath</span><span class="p">.</span><span class="n">row</span><span class="p">];</span>
+</span><span class='line'>  <span class="n">cell</span><span class="p">.</span><span class="n">textLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nl">stringWithFormat:</span><span class="s">@&quot;Line %@ - %@ min.&quot;</span><span class="p">,</span> <span class="n">arrival</span><span class="p">.</span><span class="n">line</span><span class="p">,</span> <span class="n">arrival</span><span class="p">.</span><span class="n">time</span><span class="p">];</span>
+</span><span class='line'>  <span class="n">cell</span><span class="p">.</span><span class="n">detailTextLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">arrival</span><span class="p">.</span><span class="n">name</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="n">cell</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Basically is the same that in other occasions: get element on array and represent values in each cell on table view. Here we represent line number and time as title, and name of the line as description.</p>
+
+<h3>5.3.4 Get map position</h3>
+
+<p>As an extra pill, we want to represent each line in a map, impossible is nothing!</p>
+
+<p>If you inspect one more time HTML source, you can see several JS scripts, but at last appears one which configure map view on website, and where you should see any similar to follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="n">var</span> <span class="n">myLatlng</span> <span class="o">=</span> <span class="n">new</span> <span class="n">google</span><span class="p">.</span><span class="n">maps</span><span class="p">.</span><span class="n">LatLng</span><span class="p">(</span><span class="s">&quot;41.646089&quot;</span><span class="p">,</span> <span class="s">&quot;-4.720144&quot;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>We will use MapKit to show a map on our application, so we only need longitude and latitude from these line. Is for this that we need to add some lines to parse method to catch these values from HTML as you can see at code below:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">parse:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">html</span> <span class="nf">line:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="nv">line</span><span class="p">{</span>
+</span><span class='line'>  <span class="err">…</span>
+</span><span class='line'>  <span class="n">NSArray</span> <span class="o">*</span><span class="n">scripts</span> <span class="o">=</span> <span class="p">[</span><span class="n">document</span> <span class="nl">selectElements:</span><span class="s">@&quot;script&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="n">Element</span> <span class="o">*</span><span class="n">script</span> <span class="k">in</span> <span class="n">scripts</span><span class="p">){</span>
+</span><span class='line'>      <span class="n">NSString</span> <span class="o">*</span><span class="n">scriptSource</span> <span class="o">=</span> <span class="p">((</span><span class="n">Element</span> <span class="o">*</span><span class="p">)</span><span class="n">script</span><span class="p">).</span><span class="n">contentsText</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">([</span><span class="n">scriptSource</span> <span class="nl">rangeOfString:</span><span class="s">@&quot;var myLatlng&quot;</span><span class="p">].</span><span class="n">location</span> <span class="o">!=</span> <span class="n">NSNotFound</span><span class="p">){</span>
+</span><span class='line'>          <span class="p">[</span><span class="n">self</span> <span class="nl">getCoordinates:</span><span class="n">scriptSource</span> <span class="nl">line:</span><span class="n">line</span><span class="p">];</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>First of all, we search different scripts sections in all HTML file, and look for <code>var myLatlng</code> string, in which case we call to another method, which we implement in a few minutes.</p>
+
+<p>Before that, we going to create a category to help us to clean strings and a class which conforms MKAnnotation protocol to show pins on map with information about line.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">@implementation</span> <span class="nc">NSString</span> <span class="nl">(AFNetworking)</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nf">removeString:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">str</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="p">[</span><span class="n">self</span> <span class="nl">stringByReplacingOccurrencesOfString:</span><span class="n">str</span> <span class="nl">withString:</span><span class="s">@&quot;&quot;</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>This method only receives a substring that we want to remove from a string, and return this string without it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">@interface</span> <span class="nc">JMAnnotation</span> : <span class="nc">NSObject</span><span class="o">&lt;</span><span class="n">MKAnnotation</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">readonly</span><span class="p">)</span> <span class="n">CLLocationCoordinate2D</span> <span class="n">coordinate</span><span class="p">;</span>
+</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">assign</span><span class="p">)</span> <span class="kt">int</span> <span class="n">line</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">id</span><span class="p">)</span> <span class="nf">initWithCoordinate:</span><span class="p">(</span><span class="n">CLLocationCoordinate2D</span><span class="p">)</span><span class="nv">coord</span> <span class="nf">line:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="nv">line</span><span class="p">;</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>JMAnnotation include a coordinate and a line number which will be show on a bubble when user press the pin. Implementation is too easy as you can see below:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">@implementation</span> <span class="nc">JMAnnotation</span>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">id</span><span class="p">)</span> <span class="nf">initWithCoordinate:</span><span class="p">(</span><span class="n">CLLocationCoordinate2D</span><span class="p">)</span><span class="nv">coord</span> <span class="nf">line:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="nv">line</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="n">init</span><span class="p">];</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">self</span><span class="p">)</span> <span class="k">return</span> <span class="nb">nil</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">_line</span> <span class="o">=</span> <span class="n">line</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">_coordinate</span> <span class="o">=</span> <span class="n">coord</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nf">title</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="p">[</span><span class="n">NSString</span> <span class="nl">stringWithFormat:</span><span class="s">@&quot;Line %i&quot;</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">line</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>Once we have that, we can implement method to get coordinates from javascript script, and which will create a JMAnnotation with these coordinates and add it to the map as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">getCoordinates:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">scriptSource</span> <span class="nf">line:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="nv">line</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">NSRegularExpression</span> <span class="o">*</span><span class="n">regex</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSRegularExpression</span>
+</span><span class='line'>      <span class="nl">regularExpressionWithPattern:</span><span class="s">@&quot;google.maps.LatLng(.*);&quot;</span>
+</span><span class='line'>      <span class="nl">options:</span><span class="mi">0</span> <span class="nl">error:</span><span class="o">&amp;</span><span class="n">error</span><span class="p">];</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">regex</span> <span class="o">!=</span> <span class="nb">nil</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">NSTextCheckingResult</span> <span class="o">*</span><span class="n">firstMatch</span> <span class="o">=</span> <span class="p">[</span><span class="n">regex</span> <span class="nl">firstMatchInString:</span><span class="n">scriptSource</span>
+</span><span class='line'>          <span class="nl">options:</span><span class="mi">0</span> <span class="nl">range:</span><span class="n">NSMakeRange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="n">scriptSource</span> <span class="n">length</span><span class="p">])];</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">firstMatch</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">NSRange</span> <span class="n">accessTokenRange</span> <span class="o">=</span> <span class="p">[</span><span class="n">firstMatch</span> <span class="nl">rangeAtIndex:</span><span class="mi">1</span><span class="p">];</span>
+</span><span class='line'>          <span class="n">NSString</span> <span class="o">*</span><span class="n">accessToken</span> <span class="o">=</span> <span class="p">[</span><span class="n">scriptSource</span> <span class="nl">substringWithRange:</span><span class="n">accessTokenRange</span><span class="p">];</span>
+</span><span class='line'>          <span class="n">accessToken</span> <span class="o">=</span> <span class="p">[</span><span class="n">accessToken</span> <span class="nl">stringByReplacingPercentEscapesUsingEncoding:</span><span class="n">NSUTF8StringEncoding</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="n">accessToken</span> <span class="o">=</span> <span class="p">[</span><span class="n">accessToken</span> <span class="nl">removeString:</span><span class="s">@&quot;</span><span class="se">\&quot;</span><span class="s">&quot;</span><span class="p">];</span>
+</span><span class='line'>          <span class="n">accessToken</span> <span class="o">=</span> <span class="p">[</span><span class="n">accessToken</span> <span class="nl">removeString:</span><span class="s">@&quot;(&quot;</span><span class="p">];</span>
+</span><span class='line'>          <span class="n">accessToken</span> <span class="o">=</span> <span class="p">[</span><span class="n">accessToken</span> <span class="nl">removeString:</span><span class="s">@&quot;)&quot;</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="n">NSArray</span> <span class="o">*</span><span class="n">listItems</span> <span class="o">=</span> <span class="p">[</span><span class="n">accessToken</span> <span class="nl">componentsSeparatedByString:</span><span class="s">@&quot;, &quot;</span><span class="p">];</span>
+</span><span class='line'>          <span class="n">CLLocationDegrees</span> <span class="n">lon</span> <span class="o">=</span> <span class="p">[</span><span class="n">listItems</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="n">floatValue</span><span class="p">];</span>
+</span><span class='line'>          <span class="n">CLLocationDegrees</span> <span class="n">lat</span> <span class="o">=</span> <span class="p">[</span><span class="n">listItems</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="n">floatValue</span><span class="p">];</span>
+</span><span class='line'>          <span class="n">CLLocationCoordinate2D</span> <span class="n">coordinate</span> <span class="o">=</span> <span class="n">CLLocationCoordinate2DMake</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="n">JAnnotation</span> <span class="o">*</span><span class="n">annotation</span> <span class="o">=</span> <span class="p">[[</span><span class="n">JMAnnotation</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithCoordinate:</span><span class="n">coordinate</span> <span class="nl">line:</span><span class="n">line</span><span class="p">];</span>
+</span><span class='line'>          <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">map</span> <span class="nl">addAnnotation:</span><span class="n">annotation</span><span class="p">];</span>
+</span><span class='line'>          <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">map</span> <span class="nl">setCenterCoordinate:</span><span class="n">coordinate</span> <span class="nl">zoomLevel:</span><span class="mi">15</span> <span class="nl">animated:</span><span class="n">YES</span><span class="p">];</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>If you are an expert of regular expressions, maybe you can improve this source, but I prefer to do this simple to help understanding. Instead, if you are a newbie of that, maybe this code scary you, but take your time to analyze it and you’ll see that this is very long, but bit complicated: only search by a <code>google.maps.LatLng(&lt;whatever&gt;);</code> string, and when found it, clean values in to use it on <code>JMAnnotation</code> object.</p>
+
+<p>After that, add annotation to the map and center the map using MKMapView category which will zoom animatedly to this point.</p>
+
+<h3>5.3.5 Load different lines</h3>
+
+<p>Finally, you only need to call the <code>loadBusLine</code> method at load application and always that user press stepper to change between line numbers as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='obj-c'><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">viewDidLoad</span><span class="p">{</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">super</span> <span class="n">viewDidLoad</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">self</span> <span class="nl">loadBusLine:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">self</span><span class="p">.</span><span class="n">stepper</span><span class="p">.</span><span class="n">value</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">IBAction</span><span class="p">)</span><span class="nf">valueChanged:</span><span class="p">(</span><span class="n">UIStepper</span> <span class="o">*</span><span class="p">)</span><span class="nv">sender</span> <span class="p">{</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">self</span> <span class="nl">loadBusLine:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">sender</span><span class="p">.</span><span class="n">value</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>If you press <code>Run</code> button, you should see any like the image below. You can change bus stops with stepper, and you’ll see arrivals to each stop.</p>
+
+<p><img src="assets/8591_05_03.png" alt="Application loading information about line 871" /></p>
+
+<h2>5.4 Summary</h2>
+
+<p>This chapter should serve as base to create several applications reusing information available on different websites.</p>
+
+<p>We’ve learned how to do that across an example with a bus company which publishes their bus stop arrivals on his website, but access to this information from an iPhone with his small screen is too difficult, so we’ve created an application that catch these information and show on more clearly.</p>
+
+<p>Now think about how much possibilities enables that knowledge, because you can mix information of several websites with public APIs and create a very complete application without need of develop yourself backend.</p>
+
+<p>On the next chapter we’ll learn about migrate from an old library similar to AFNetworking which was very used also, but that was deprecated months ago.</p>
+
+  
+    <footer>
+      
+      
+        <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://AFNBook.github.io/5-scrapping.html" data-via="" data-counturl="http://AFNBook.github.io/5-scrapping.html" >Tweet</a>
+  
+  
+  
+</div>
+
+      
+    </footer>
+  
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>Download Book</h1>
+<ul id="recent_posts">
+	<li class="post"><a href="http://d.pr/f/qvzU">Kindle version (.mobi)</a></li>
+	<li class="post"><a href="http://d.pr/f/DMSx">e-reader version (.epub)</a></li>
+</ul>
+</section>
+
+
+<section>
+<h1>Book index</h1>
+<ul id="recent_posts">
+<li class="post">
+<a href="/0-disclaimer.html">AFNetworking from zero: Disclaimer</a>
+</li>
+
+<li class="post">
+<a href="/1-install-setup.html">1. Installing and Setting up the Project</a>
+</li>
+
+<li class="post">
+<a href="/2-first-contact.html">2. First contact with AFNetworking: Read a simple web</a>
+</li>
+
+<li class="post">
+<a href="/3-data-consumption.html">3. Standard data consumption</a>
+</li>
+
+<li class="post">
+<a href="/4-apis.html">4. API’s world</a>
+</li>
+
+<li class="post">
+<a href="/5-scrapping.html">5. Scrapping the web</a>
+</li>
+
+<li class="post">
+<a href="/6-migrate-asihttprequest.html">6. Migrate from ASIHTTPRequest</a>
+</li>
+</ul>
+</section>
+  
+</aside>
+
+
+      </div>
+    </div>
+    <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Jorge Maroto -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a>. Design by <a href="http://octopressthemes.com">Octopress Themes</a></span>
+</p>
+
+</footer>
+    
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+  </div>
+</body>
+</html>
